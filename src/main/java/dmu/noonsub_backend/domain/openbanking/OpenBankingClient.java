@@ -10,6 +10,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.springframework.stereotype.Component;
@@ -31,6 +32,15 @@ public class OpenBankingClient {
     private final CloseableHttpClient openBankingHttpClient;
     private final OpenBankingProperties properties;
     private final ObjectMapper objectMapper;
+    private final CloseableHttpClient defaultHttpClient = HttpClients.createDefault(); // Plain client for mock
+
+    private CloseableHttpClient getClient() {
+        // properties.getBaseUrl()가 mock 주소를 포함하는지 확인
+        if (properties.getBaseUrl() != null && properties.getBaseUrl().contains("localhost")) {
+            return defaultHttpClient;
+        }
+        return openBankingHttpClient;
+    }
 
     public OpenBankingTokenResponseDto exchangeToken(TokenExchangeRequestDto requestDto) {
         // 1. 토큰 발급 요청을 위한 POST 객체 생성
@@ -48,7 +58,7 @@ public class OpenBankingClient {
         post.setEntity(new UrlEncodedFormEntity(params, StandardCharsets.UTF_8));
 
         // 3. mTLS가 적용된 HttpClient로 요청 실행
-        try (CloseableHttpResponse response = openBankingHttpClient.execute(post)){
+        try (CloseableHttpResponse response = getClient().execute(post)){
             String responseBody = EntityUtils.toString(response.getEntity());
             int statusCode = response.getStatusLine().getStatusCode();
 
@@ -73,7 +83,7 @@ public class OpenBankingClient {
         get.setHeader("Authorization", "Bearer " + accessToken);
 
         // 3. mTLS가 적용된 HttpClient로 요청 실행
-        try (CloseableHttpResponse response = openBankingHttpClient.execute(get)){
+        try (CloseableHttpResponse response = getClient().execute(get)){
             String responseBody = EntityUtils.toString(response.getEntity());
             int statusCode = response.getStatusLine().getStatusCode();
 
@@ -105,7 +115,7 @@ public class OpenBankingClient {
 
         HttpGet get = new HttpGet(url);
         get.setHeader("Authorization", "Bearer " + accessToken);
-        try (CloseableHttpResponse response = openBankingHttpClient.execute(get)){
+        try (CloseableHttpResponse response = getClient().execute(get)){
             String responseBody = EntityUtils.toString(response.getEntity());
             int statusCode = response.getStatusLine().getStatusCode();
 
@@ -136,7 +146,7 @@ public class OpenBankingClient {
         );
         post.setEntity(new UrlEncodedFormEntity(params, StandardCharsets.UTF_8));
 
-        try (CloseableHttpResponse response = openBankingHttpClient.execute(post)) {
+        try (CloseableHttpResponse response = getClient().execute(post)) {
             String responseBody = EntityUtils.toString(response.getEntity());
             int statusCode = response.getStatusLine().getStatusCode();
 
