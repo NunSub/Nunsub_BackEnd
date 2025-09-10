@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class AuthorizeRequestDto {
-    private String code_challenge;
-    private String returnDeepLink;
+public class UnlinkRequestDto {
+    private String fintechUseNum;
 }

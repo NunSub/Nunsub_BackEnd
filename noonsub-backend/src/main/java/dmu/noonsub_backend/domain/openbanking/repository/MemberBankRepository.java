@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface MemberBankRepository extends JpaRepository<MemberBank,String> {
     Optional<MemberBank> findByMemberAndFintechUseNum(Member member, String fintechUseNum);
     List<MemberBank> findAllByMemberAndActiveTrue(Member member);
+    List<MemberBank> findAllByMember(Member member);
 }

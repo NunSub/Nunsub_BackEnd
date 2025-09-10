@@ -31,7 +31,8 @@ public enum ErrorCode {
     // Firebase
     FIREBASE_TOKEN_NOT_FOUND(400, "F001", "Firebase 토큰이 없습니다."),
     FIREBASE_TOKEN_INVALID(400, "F002", "유효하지 않은 Firebase 토큰입니다."),
-    DEVICE_NOT_FOUND(402, "D001", "등록된 기기가 없습니다."), ;
+    DEVICE_NOT_FOUND(402, "D001", "등록된 기기가 없습니다."),
+    BANK_ACCOUNT_NOT_FOUND(400, "D002", "등록된 은행 계좌가 없습니다."),;
 
     private final int status;
     private final String code;
