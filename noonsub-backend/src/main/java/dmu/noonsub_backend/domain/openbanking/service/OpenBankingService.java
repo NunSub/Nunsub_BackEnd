@@ -3,33 +3,26 @@ package dmu.noonsub_backend.domain.openbanking.service;
 import dmu.noonsub_backend.domain.common.exception.CustomException;
 import dmu.noonsub_backend.domain.common.exception.ErrorCode;
 import dmu.noonsub_backend.domain.member.entity.Member;
-import dmu.noonsub_backend.domain.member.repository.MemberRepository;
 import dmu.noonsub_backend.domain.member.service.MemberService;
 import dmu.noonsub_backend.domain.openbanking.OpenBankingClient;
 import dmu.noonsub_backend.domain.openbanking.OpenBankingProperties;
 import dmu.noonsub_backend.domain.openbanking.dto.*;
 import dmu.noonsub_backend.domain.openbanking.entity.MemberBank;
-import dmu.noonsub_backend.domain.openbanking.entity.OpenBankingToken;
-import dmu.noonsub_backend.domain.openbanking.entity.OpenBankingUserInfo;
 import dmu.noonsub_backend.domain.openbanking.repository.MemberBankRepository;
-import dmu.noonsub_backend.domain.openbanking.repository.OpenBankingTokenRepository;
-import dmu.noonsub_backend.domain.openbanking.repository.OpenBankingUserInfoRepository;
 import dmu.noonsub_backend.global.util.CryptoUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
-import reactor.core.publisher.Mono;
 
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -48,8 +41,7 @@ public class OpenBankingService {
         String state = generateRandomString();
 
         // 2. (임시 저장) state와 code_verifier를 Reids 등에 사용자 정보와 함계 잠시 저장 (유효시간 5분)
-        String codeVerifier = requestDto.getCove_verifier() != null ? requestDto.getCove_verifier() : "";
-        redisTemplate.opsForValue().set(state, codeVerifier, Duration.ofMinutes(5));
+        redisTemplate.opsForValue().set(state, phoneNumber, Duration.ofMinutes(5));
 
         return UriComponentsBuilder.fromHttpUrl(openBankingProperties.getAuthorizeUrl())
                 .queryParam("response_type", "code")
@@ -66,17 +58,14 @@ public class OpenBankingService {
 
     @Transactional
     public void exchangeTokenAndSave(String phoneNumber, TokenExchangeRequestDto requestDto) {
-        String savedCodeVerifier = redisTemplate.opsForValue().get(requestDto.getState());
+        String savedPhonNumber = redisTemplate.opsForValue().get(requestDto.getState());
 
-        if (savedCodeVerifier == null) {
+        if (savedPhonNumber == null || !savedPhonNumber.equals(phoneNumber)) {
             throw new SecurityException("Invalid or expired state parameter. CSRF attack detected.");
         }
 
         redisTemplate.delete(requestDto.getState());
 
-        if (!savedCodeVerifier.equals(requestDto.getCode_verifier())) {
-            throw new SecurityException("Code Verifier does not match.");
-        }
         try {
             Member member = memberService.getMemberByPhoneNumber(phoneNumber);
 
@@ -168,6 +157,25 @@ public class OpenBankingService {
                 Instant.now().plusSeconds(tokenResponse.getExpiresIn())
         );
         return memberBankRepository.save(memberBank);
+    }
+
+    @Transactional(readOnly = true)
+    public List<AccountSummaryDto> getAccountList(String phoneNumber) {
+        Member member = memberService.getMemberByPhoneNumber(phoneNumber);
+        List<MemberBank> memberBanks = memberBankRepository.findAllByMember(member);
+
+        return memberBanks.stream()
+                .map(AccountSummaryDto::new)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void unlinkAccount(String phoneNumber, String fintechUseNum) {
+        Member member = memberService.getMemberByPhoneNumber(phoneNumber);
+        MemberBank memberBank = memberBankRepository.findByMemberAndFintechUseNum(member, fintechUseNum)
+                .orElseThrow(() -> new CustomException(ErrorCode.BANK_ACCOUNT_NOT_FOUND));
+
+        memberBankRepository.delete(memberBank);
     }
 
 
