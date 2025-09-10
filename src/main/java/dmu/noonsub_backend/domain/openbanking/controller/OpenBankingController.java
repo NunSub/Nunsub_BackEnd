@@ -1,8 +1,6 @@
 package dmu.noonsub_backend.domain.openbanking.controller;
 
-import dmu.noonsub_backend.domain.member.entity.Member;
 import dmu.noonsub_backend.domain.openbanking.dto.*;
-import dmu.noonsub_backend.domain.openbanking.entity.OpenBankingToken;
 import dmu.noonsub_backend.domain.openbanking.service.OpenBankingService;
 import dmu.noonsub_backend.global.userdetails.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +15,7 @@ public class OpenBankingController {
 
     private final OpenBankingService openBankingService;
 
-    @GetMapping("/authorize")
+    @PostMapping("/authorize")
     public ResponseEntity<AuthorizeResponseDto> authorize(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestBody AuthorizeRequestDto requestDto) {
@@ -49,6 +47,14 @@ public class OpenBankingController {
                 phoneNumber, fintechUseNum, fromDate, toDate, sortOrder
         );
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/unlink")
+    public ResponseEntity<Void> unlinkAccount(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                              @RequestBody UnlinkRequestDto requestDto) {
+        String phoneNumber = userDetails.getUsername();
+        openBankingService.unlinkAccount(phoneNumber, requestDto.getFintechUseNum());
+        return ResponseEntity.ok().build();
     }
 
 }
