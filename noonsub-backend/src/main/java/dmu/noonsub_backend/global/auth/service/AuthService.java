@@ -1,16 +1,10 @@
 package dmu.noonsub_backend.global.auth.service;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.FirebaseToken;
-import com.google.firebase.auth.UserRecord;
 import dmu.noonsub_backend.domain.common.exception.CustomException;
 import dmu.noonsub_backend.domain.common.exception.ErrorCode;
 import dmu.noonsub_backend.domain.member.dto.LoginRequestDto;
 import dmu.noonsub_backend.domain.member.dto.SignUpRequestDto;
 import dmu.noonsub_backend.domain.member.entity.Member;
-import dmu.noonsub_backend.domain.member.enums.Role;
-import dmu.noonsub_backend.domain.member.repository.MemberRepository;
 import dmu.noonsub_backend.domain.member.service.MemberService;
 import dmu.noonsub_backend.global.auth.dto.RefreshRequestDto;
 import dmu.noonsub_backend.global.auth.dto.TokenBox;
@@ -19,11 +13,7 @@ import dmu.noonsub_backend.global.auth.entity.TrustedDevice;
 import dmu.noonsub_backend.global.auth.jwt.JwtUtil;
 import dmu.noonsub_backend.global.auth.repository.TrustedDeviceRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
