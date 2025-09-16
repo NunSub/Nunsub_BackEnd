@@ -4,7 +4,6 @@ import dmu.noonsub_backend.domain.member.enums.Role;
 import dmu.noonsub_backend.global.auth.filter.JwtFilter;
 import dmu.noonsub_backend.global.auth.handler.AccessDeniedHandlerImpl;
 import dmu.noonsub_backend.global.auth.handler.AuthenticationEntryPointImpl;
-import dmu.noonsub_backend.global.auth.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -66,7 +65,12 @@ public class SecurityConfig {
                 .logout(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/auth/**", "/api/openbanking/**").permitAll()
+                        .requestMatchers(
+                                "/api/swagger-ui/**",
+                                "/api/v3/api-docs/**",
+                                "/api/swagger-ui.html"
+                        ).permitAll()
+                        .requestMatchers("/api/auth/**", "/api/openbanking/**", "/mock/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole(Role.ADMIN.name())
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated()
