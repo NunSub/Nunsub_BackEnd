@@ -2,7 +2,6 @@ plugins {
 	id 'java'
     id 'org.springframework.boot' version '3.3.3'
 	id 'io.spring.dependency-management' version '1.1.7'
-    id 'org.flywaydb.flyway' version '10.15.0'
 }
 
 group = 'dmu'
@@ -42,8 +41,6 @@ dependencies {
 
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
 
-    implementation("org.flywaydb:flyway-core")
-
     runtimeOnly 'org.postgresql:postgresql:42.7.7' // PostgreSQL JDBC 드라이버
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -65,21 +62,4 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
-}
-
-// Flyway 설정을 추가합니다.
-task runFlywayMigrate(type: JavaExec) {
-    group = "migration"
-    description = "Runs Flyway database migration programmatically."
-
-    // 실행할 main 클래스를 지정합니다.
-    mainClass = "dmu.noonsub_backend.migration.FlywayMigrator"
-
-    // Spring Boot 애플리케이션의 런타임 클래스 경로를 그대로 사용합니다.
-    classpath = sourceSets.main.runtimeClasspath
-
-    // CI/CD 환경 변수를 이 작업에 전달합니다.
-    environment 'DB_URL', System.getenv('DB_URL')
-    environment 'DB_USER', System.getenv('DB_USER')
-    environment 'DB_PASSWORD', System.getenv('DB_PASSWORD')
 }
