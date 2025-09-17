@@ -1,6 +1,6 @@
 # --- 1. 빌드(Build) 스테이지 ---
 # JDK 17 Temurin 이미지를 빌드 환경으로 사용합니다.
-FROM eclipse-temurin:17-jdk-jammy as builder
+FROM eclipse-temurin:21-jdk-jammy as builder
 
 # 작업 디렉터리를 생성합니다.
 WORKDIR /workspace/app
@@ -27,7 +27,7 @@ RUN ./gradlew build -x test --parallel
 
 # --- 2. 실행(Runtime) 스테이지 ---
 # 더 작고 안전한 JRE(Java Runtime Environment) 이미지를 최종 실행 환경으로 사용합니다.
-FROM eclipse-temurin:17-jre-jammy
+FROM eclipse-temurin:21-jre-jammy
 
 # 작업 디렉터리를 생성합니다.
 WORKDIR /workspace/app
