@@ -67,6 +67,12 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
+          # ✅ 디버깅 단계 추가
+      - name: Debug DB URL
+        run: echo "DB_URL=${{ env.DB_URL }}"
+        env:
+          DB_URL: jdbc:postgresql://127.0.0.1:5432/${{ secrets.DB_NAME }}
+
       - name: Run DB Migration with Flyway
         env:
           DB_URL: jdbc:postgresql://127.0.0.1:5432/${{ secrets.DB_NAME }}
