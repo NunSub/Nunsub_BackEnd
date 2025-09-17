@@ -73,6 +73,9 @@ jobs:
         env:
           DB_URL: jdbc:postgresql://127.0.0.1:5432/${{ secrets.DB_NAME }}
 
+      - name: Wait for Proxy to initialize
+        run: sleep 5 # 프록시가 시작될 때까지 5초간 대기
+
       - name: Check DB Connection
         run: pg_isready -h 127.0.0.1 -p 5432 -d ${{ secrets.DB_NAME }} -U ${{ secrets.POST_DB_USERNAME }}
         env:
