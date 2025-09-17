@@ -69,7 +69,7 @@ jobs:
 
       - name: Run DB Migration with Flyway
         env:
-          DB_URL: ${{ secrets.POST_DB_URL }}
+          DB_URL: jdbc:postgresql://127.0.0.1:5432/${{ secrets.DB_NAME }}
           DB_USERNAME: ${{ secrets.POST_DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.POST_DB_PASSWORD }}
         run: ./gradlew flywayMigrate -i
