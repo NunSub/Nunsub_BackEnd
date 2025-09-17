@@ -54,6 +54,11 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
+    implementation 'org.flywaydb:flyway-core' // Flyway Core 의존성
+    implementation 'org.flywaydb:flyway-database-postgresql' // PostgreSQL용 Flyway 의존성 추가
+
+    runtimeOnly 'org.postgresql:postgresql' // PostgreSQL JDBC 드라이버
 }
 
 tasks.named('test') {
