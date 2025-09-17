@@ -8,8 +8,8 @@ WORKDIR /workspace/app
 # Gradle 래퍼와 빌드 스크립트를 먼저 복사합니다.
 COPY gradlew .
 COPY gradle gradle
-COPY build.gradle.kts .
-COPY settings.gradle.kts .
+COPY build.gradle .
+COPY settings.gradle .
 
 # Gradle 의존성을 다운로드하여 캐싱 효과를 극대화합니다.
 # 소스 코드가 변경되지 않으면 이 단계는 캐시를 사용해 빠르게 넘어갑니다.
