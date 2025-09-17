@@ -43,7 +43,7 @@ dependencies {
 
     implementation 'org.flywaydb:flyway-core' // Flyway Core 의존성
 
-    runtimeOnly 'org.postgresql:postgresql:42.6.0' // PostgreSQL JDBC 드라이버
+    runtimeOnly 'org.postgresql:postgresql:42.7.7' // PostgreSQL JDBC 드라이버
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'com.h2database:h2'
