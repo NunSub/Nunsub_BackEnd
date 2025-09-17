@@ -11,6 +11,9 @@ COPY gradle gradle
 COPY build.gradle .
 COPY settings.gradle .
 
+# gradlew를 실행하기 전에 실행 권한을 부여하는 단계를 추가합니다.
+RUN chmod +x ./gradlew
+
 # Gradle 의존성을 다운로드하여 캐싱 효과를 극대화합니다.
 # 소스 코드가 변경되지 않으면 이 단계는 캐시를 사용해 빠르게 넘어갑니다.
 RUN ./gradlew build -x test --parallel --build-cache || ./gradlew dependencies
