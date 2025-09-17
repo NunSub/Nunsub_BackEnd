@@ -73,6 +73,11 @@ jobs:
         env:
           DB_URL: jdbc:postgresql://127.0.0.1:5432/${{ secrets.DB_NAME }}
 
+      - name: Check DB Connection
+        run: pg_isready -h 127.0.0.1 -p 5432 -d ${{ secrets.DB_NAME }} -U ${{ secrets.POST_DB_USERNAME }}
+        env:
+          PGPASSWORD: ${{ secrets.POST_DB_PASSWORD }}
+
       - name: Run DB Migration with Flyway
         env:
           DB_URL: jdbc:postgresql://127.0.0.1:5432/${{ secrets.DB_NAME }}
