@@ -60,6 +60,7 @@ jobs:
             echo "OPENBANKING_CLIENT_SECRET='${{ secrets.OPENBANKING_CLIENT_SECRET }}'" >> .env
             echo "OPENBANKING_REDIRECT_URI='${{ secrets.OPENBANKING_REDIRECT_URI }}'" >> .env
             echo "OPENBANKING_CRYPTO_SECRET_KEY='${{ secrets.OPENBANKING_CRYPTO_SECRET_KEY }}'" >> .env
+
             
             # Docker 인증 및 배포 스크립트 실행
             gcloud auth configure-docker us-west1-docker.pkg.dev
