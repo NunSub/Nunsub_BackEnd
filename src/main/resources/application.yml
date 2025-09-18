@@ -3,7 +3,7 @@ server:
   forward-headers-strategy: native
 spring:
   application:
-    name: noonsub-backend
+    name: nunsub-backend
   profiles:
     active: credentials
 springdoc:

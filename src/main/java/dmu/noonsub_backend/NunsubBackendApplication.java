@@ -8,9 +8,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableScheduling
 @EnableJpaAuditing
-public class NoonsubBackendApplication {
+public class NunsubBackendApplication {
 	public static void main(String[] args) {
-		SpringApplication.run(NoonsubBackendApplication.class, args);
+		SpringApplication.run(NunsubBackendApplication.class, args);
 	}
 
 }
