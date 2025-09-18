@@ -43,4 +43,4 @@ COPY --from=builder /workspace/app/build/libs/*.jar app.jar
 
 # 컨테이너가 시작될 때 실행될 명령어입니다.
 # java -jar app.jar를 실행하여 Spring Boot 애플리케이션을 시작합니다.
-ENTRYPOINT["./start.sh"]
+ENTRYPOINT ["./start.sh"]
