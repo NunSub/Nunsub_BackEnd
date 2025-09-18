@@ -66,6 +66,6 @@ jobs:
             
             # Docker 인증 및 배포 스크립트 실행
             gcloud auth configure-docker us-west1-docker.pkg.dev
-            docker compose pull nunsub-backend-blue
-            docker compose pull nunsub-backend-green
+            docker compose pull nunsub-web-blue
+            docker compose pull nunsub-web-green
             ./deploy.sh
