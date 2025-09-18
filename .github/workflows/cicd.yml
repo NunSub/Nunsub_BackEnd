@@ -28,8 +28,7 @@ jobs:
       - name: Build and Push Docker Image
         run: |-
           gcloud builds submit --region=${{ env.GAR_LOCATION }} \
-          --tag ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}:${{ github.sha }} \
-          --tag ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}:latest
+          --tag ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}:${{ github.sha }}:latest
 
   deploy:
     name: Deploy to GCE with Blue-Green Deployment
@@ -43,8 +42,6 @@ jobs:
           username: ${{ secrets.GCE_USERNAME }}
           key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
           script: |
-            export IMAGE_TAG=${{ github.sha }}
-            
             cd /home/ehgns79513/nunsub
             
             # Here Document을 사용하여 .env 파일을 한 번에, 더 안전하게 생성합니다.
