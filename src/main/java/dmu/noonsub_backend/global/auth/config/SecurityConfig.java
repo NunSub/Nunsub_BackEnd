@@ -70,7 +70,7 @@ public class SecurityConfig {
                                 "/api/v3/api-docs/**",
                                 "/api/swagger-ui.html"
                         ).permitAll()
-                        .requestMatchers("/api/auth/**", "/api/openbanking/**", "/mock/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/api/openbanking/**", "/mock/**","/api/health-check").permitAll()
                         .requestMatchers("/api/admin/**").hasRole(Role.ADMIN.name())
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated()
