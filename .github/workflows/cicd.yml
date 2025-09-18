@@ -51,7 +51,6 @@ jobs:
             POST_DB_PASSWORD=${{ secrets.POST_DB_PASSWORD }}
             DDL_AUTO=${{ secrets.DDL_AUTO }}
             SHOW_SQL=${{ secrets.SHOW_SQL }}
-            MONGO_DB_URl=${{ secrets.MONGO_DB_URl }}
             REDIS_HOST=${{ secrets.REDIS_HOST }}
             REDIS_PORT=${{ secrets.REDIS_PORT }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
