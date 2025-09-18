@@ -32,10 +32,15 @@ FROM eclipse-temurin:21-jre-jammy
 # 작업 디렉터리를 생성합니다.
 WORKDIR /workspace/app
 
+RUN wget https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.8.2/cloud-sql-proxy.linux.amd64 -O cloud-sql-proxy && \
+    chmod +x cloud-sql-proxy
+
+COPY --chown=root:root start.sh .
+
 # 빌드 스테이지에서 생성된 jar 파일을 실행 스테이지로 복사합니다.
 # build/libs/*.jar 패턴으로 생성된 jar 파일을 app.jar 라는 이름으로 복사합니다.
 COPY --from=builder /workspace/app/build/libs/*.jar app.jar
 
 # 컨테이너가 시작될 때 실행될 명령어입니다.
 # java -jar app.jar를 실행하여 Spring Boot 애플리케이션을 시작합니다.
-ENTRYPOINT ["java","-jar","app.jar"]
+ENTRYPOINT["./start.sh"]
