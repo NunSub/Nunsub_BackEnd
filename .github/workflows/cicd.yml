@@ -41,7 +41,7 @@ jobs:
           username: ${{ secrets.GCE_USERNAME }}
           key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
           script: |
-            cd /home/ubuntu/nunsub-backend
+            cd /home/ehgns79513/nunsub
             
             # .env 파일 생성
             echo "POST_DB_URL=${{ secrets.POST_DB_URL }}" > .env
