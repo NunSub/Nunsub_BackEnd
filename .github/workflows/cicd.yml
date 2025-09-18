@@ -43,23 +43,23 @@ jobs:
           script: |
             cd /home/ehgns79513/nunsub
             
-            # .env 파일 생성
-            echo "POST_DB_URL=${{ secrets.POST_DB_URL }}" > .env
-            echo "POST_DB_USERNAME=${{ secrets.POST_DB_USERNAME }}" >> .env
-            echo "POST_DB_PASSWORD=${{ secrets.POST_DB_PASSWORD }}" >> .env
-            echo "DDL_AUTO=${{ secrets.DDL_AUTO }}" >> .env
-            echo "SHOW_SQL=${{ secrets.SHOW_SQL }}" >> .env
-            echo "MONGO_DB_URl=${{ secrets.MONGO_DB_URl }}" >> .env
-            echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> .env
-            echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> .env
-            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
-            echo "JWT_ACCESS_TOKEN_EXPIRATION=${{ secrets.JWT_ACCESS_TOKEN_EXPIRATION }}" >> .env
-            echo "JWT_REFRESH_TOKEN_EXPIRATION=${{ secrets.JWT_REFRESH_TOKEN_EXPIRATION }}" >> .env
-            echo "JWT_SECONDARY_AUTH_TOKEN_EXPIRATION=${{ secrets.JWT_SECONDARY_AUTH_TOKEN_EXPIRATION }}" >> .env
-            echo "OPENBANKING_CLIENT_ID=${{ secrets.OPENBANKING_CLIENT_ID }}" >> .env
-            echo "OPENBANKING_CLIENT_SECRET=${{ secrets.OPENBANKING_CLIENT_SECRET }}" >> .env
-            echo "OPENBANKING_REDIRECT_URI=${{ secrets.OPENBANKING_REDIRECT_URI }}" >> .env
-            echo "OPENBANKING_CRYPTO_SECRET_KEY=${{ secrets.OPENBANKING_CRYPTO_SECRET_KEY }}" >> .env
+            # ❗수정됨: 모든 Secret 값을 작은따옴표로 감싸서 안전하게 처리
+            echo "POST_DB_URL='${{ secrets.POST_DB_URL }}'" > .env
+            echo "POST_DB_USERNAME='${{ secrets.POST_DB_USERNAME }}'" >> .env
+            echo "POST_DB_PASSWORD='${{ secrets.POST_DB_PASSWORD }}'" >> .env
+            echo "DDL_AUTO='${{ secrets.DDL_AUTO }}'" >> .env
+            echo "SHOW_SQL='${{ secrets.SHOW_SQL }}'" >> .env
+            echo "MONGO_DB_URl='${{ secrets.MONGO_DB_URl }}'" >> .env
+            echo "REDIS_HOST='${{ secrets.REDIS_HOST }}'" >> .env
+            echo "REDIS_PORT='${{ secrets.REDIS_PORT }}'" >> .env
+            echo "JWT_SECRET='${{ secrets.JWT_SECRET }}'" >> .env
+            echo "JWT_ACCESS_TOKEN_EXPIRATION='${{ secrets.JWT_ACCESS_TOKEN_EXPIRATION }}'" >> .env
+            echo "JWT_REFRESH_TOKEN_EXPIRATION='${{ secrets.JWT_REFRESH_TOKEN_EXPIRATION }}'" >> .env
+            echo "JWT_SECONDARY_AUTH_TOKEN_EXPIRATION='${{ secrets.JWT_SECONDARY_AUTH_TOKEN_EXPIRATION }}'" >> .env
+            echo "OPENBANKING_CLIENT_ID='${{ secrets.OPENBANKING_CLIENT_ID }}'" >> .env
+            echo "OPENBANKING_CLIENT_SECRET='${{ secrets.OPENBANKING_CLIENT_SECRET }}'" >> .env
+            echo "OPENBANKING_REDIRECT_URI='${{ secrets.OPENBANKING_REDIRECT_URI }}'" >> .env
+            echo "OPENBANKING_CRYPTO_SECRET_KEY='${{ secrets.OPENBANKING_CRYPTO_SECRET_KEY }}'" >> .env
             
             # Docker 인증 및 배포 스크립트 실행
             gcloud auth configure-docker us-west1-docker.pkg.dev
