@@ -46,23 +46,23 @@ jobs:
             
             # Here Document을 사용하여 .env 파일을 한 번에, 더 안전하게 생성합니다.
             cat <<EOF > .env
-            POST_DB_URL='${{ secrets.POST_DB_URL }}'
-            POST_DB_USERNAME='${{ secrets.POST_DB_USERNAME }}'
-            POST_DB_PASSWORD='${{ secrets.POST_DB_PASSWORD }}'
-            DDL_AUTO='${{ secrets.DDL_AUTO }}'
-            SHOW_SQL='${{ secrets.SHOW_SQL }}'
-            MONGO_DB_URl='${{ secrets.MONGO_DB_URl }}'
-            REDIS_HOST='${{ secrets.REDIS_HOST }}'
-            REDIS_PORT='${{ secrets.REDIS_PORT }}'
-            JWT_SECRET='${{ secrets.JWT_SECRET }}'
-            JWT_ACCESS_TOKEN_EXPIRATION='${{ secrets.JWT_ACCESS_TOKEN_EXPIRATION }}'
-            JWT_REFRESH_TOKEN_EXPIRATION='${{ secrets.JWT_REFRESH_TOKEN_EXPIRATION }}'
-            JWT_SECONDARY_AUTH_TOKEN_EXPIRATION='${{ secrets.JWT_SECONDARY_AUTH_TOKEN_EXPIRATION }}'
-            OPENBANKING_CLIENT_ID='${{ secrets.OPENBANKING_CLIENT_ID }}'
-            OPENBANKING_CLIENT_SECRET='${{ secrets.OPENBANKING_CLIENT_SECRET }}'
-            OPENBANKING_REDIRECT_URI='${{ secrets.OPENBANKING_REDIRECT_URI }}'
-            OPENBANKING_CRYPTO_SECRET_KEY='${{ secrets.OPENBANKING_CRYPTO_SECRET_KEY }}'
-            INSTANCE_CONNECTION_NAME='${{ secrets.INSTANCE_CONNECTION_NAME }}'
+            POST_DB_URL=${{ secrets.POST_DB_URL }}
+            POST_DB_USERNAME=${{ secrets.POST_DB_USERNAME }}
+            POST_DB_PASSWORD=${{ secrets.POST_DB_PASSWORD }}
+            DDL_AUTO=${{ secrets.DDL_AUTO }}
+            SHOW_SQL=${{ secrets.SHOW_SQL }}
+            MONGO_DB_URl=${{ secrets.MONGO_DB_URl }}
+            REDIS_HOST=${{ secrets.REDIS_HOST }}
+            REDIS_PORT=${{ secrets.REDIS_PORT }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            JWT_ACCESS_TOKEN_EXPIRATION=${{ secrets.JWT_ACCESS_TOKEN_EXPIRATION }}
+            JWT_REFRESH_TOKEN_EXPIRATION=${{ secrets.JWT_REFRESH_TOKEN_EXPIRATION }}
+            JWT_SECONDARY_AUTH_TOKEN_EXPIRATION=${{ secrets.JWT_SECONDARY_AUTH_TOKEN_EXPIRATION }}
+            OPENBANKING_CLIENT_ID=${{ secrets.OPENBANKING_CLIENT_ID }}
+            OPENBANKING_CLIENT_SECRET=${{ secrets.OPENBANKING_CLIENT_SECRET }}
+            OPENBANKING_REDIRECT_URI=${{ secrets.OPENBANKING_REDIRECT_URI }}
+            OPENBANKING_CRYPTO_SECRET_KEY=${{ secrets.OPENBANKING_CRYPTO_SECRET_KEY }}
+            INSTANCE_CONNECTION_NAME=${{ secrets.INSTANCE_CONNECTION_NAME }}
             EOF
 
             
