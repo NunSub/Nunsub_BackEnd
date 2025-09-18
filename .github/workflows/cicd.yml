@@ -39,7 +39,7 @@ jobs:
         with:
           host: ${{ secrets.GCE_HOST }}
           username: ${{ secrets.GCE_USERNAME }}
-          key: ${{ secrets.GCE_PRIVATE_KEY }}
+          key: ${{ secrets.GCP_SSH_PRIVATE_KEY }}
           script: |
             cd /home/ubuntu/nunsub-backend
             
