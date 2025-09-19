@@ -38,6 +38,7 @@ public class AuthController {
 
     @PostMapping("/check-member")
     public ResponseEntity<Boolean> checkMember(@RequestBody MemberCheckRequestDto memberCheckRequestDto) {
+
         String phoneNumber = memberCheckRequestDto.getPhoneNumber();
         boolean exists = memberService.existsByPhoneNumber(phoneNumber);
         return ResponseEntity.ok(exists);
