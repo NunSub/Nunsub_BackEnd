@@ -4,6 +4,7 @@ import dmu.noonsub_backend.domain.member.dto.LoginRequestDto;
 import dmu.noonsub_backend.domain.member.dto.SignUpRequestDto;
 import dmu.noonsub_backend.domain.member.service.MemberService;
 import dmu.noonsub_backend.global.auth.dto.LogoutRequestDto;
+import dmu.noonsub_backend.global.auth.dto.MemberCheckRequestDto;
 import dmu.noonsub_backend.global.auth.dto.RefreshRequestDto;
 import dmu.noonsub_backend.global.auth.dto.TokenBox;
 import dmu.noonsub_backend.global.auth.jwt.JwtUtil;
@@ -37,8 +38,9 @@ public class AuthController {
         return ResponseEntity.ok(tokenBox);
     }
 
-    @GetMapping("/check-member")
-    public ResponseEntity<Map<String, Boolean>> checkMember(@RequestParam String phoneNumber) {
+    @PostMapping("/check-member")
+    public ResponseEntity<Map<String, Boolean>> checkMember(@RequestBody MemberCheckRequestDto memberCheckRequestDto) {
+        String phoneNumber = memberCheckRequestDto.getPhoneNumber();
         boolean exists = memberService.existsByPhoneNumber(phoneNumber);
         return ResponseEntity.ok(Map.of("exists", exists));
     }
