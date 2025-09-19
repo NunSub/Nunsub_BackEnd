@@ -14,8 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -39,10 +37,11 @@ public class AuthController {
     }
 
     @PostMapping("/check-member")
-    public ResponseEntity<Map<String, Boolean>> checkMember(@RequestBody MemberCheckRequestDto memberCheckRequestDto) {
+    public ResponseEntity<Boolean> checkMember(@RequestBody MemberCheckRequestDto memberCheckRequestDto) {
+
         String phoneNumber = memberCheckRequestDto.getPhoneNumber();
         boolean exists = memberService.existsByPhoneNumber(phoneNumber);
-        return ResponseEntity.ok(Map.of("exists", exists));
+        return ResponseEntity.ok(exists);
     }
 
     @PostMapping("/refresh")
