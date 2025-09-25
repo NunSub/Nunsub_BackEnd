@@ -25,6 +25,18 @@ public class MockUser {
     @Column(nullable = false)
     private String userName;
 
+    @Column
+    private String userInfo;
+
+    @Column
+    private String userGender;
+
+    @Column
+    private String userCellNo;
+
+    @Column
+    private String userEmail;
+
     // User가 삭제될 때 연관된 Account도 함께 삭제되도록 설정
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MockAccount> accounts = new ArrayList<>();

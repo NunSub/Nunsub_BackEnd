@@ -1,15 +1,30 @@
 package dmu.noonsub_backend.mockapi.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Builder
-public record MockTransactionDetailDto(
-        String tran_date,
-        String tran_time,
-        String inout_type,
-        String tran_type,
-        String print_content,
-        String tran_amt,
-        String after_balance_amt,
-        String branch_name
-) {}
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+public class MockTransactionDetailDto{
+    @JsonProperty("tran_date")
+    String tranDate;
+    @JsonProperty("tran_time")
+    String tranTime;
+    @JsonProperty("inout_type")
+    String inoutType;
+    @JsonProperty("tran_type")
+    String tranType;
+    @JsonProperty("printed_content")
+    String printedContent;
+    @JsonProperty("tran_amt")
+    String tranAmt;
+    @JsonProperty("after_balance_amt")
+    String afterBalanceAmt;
+    @JsonProperty("branch_name")
+    String branchName;
+}

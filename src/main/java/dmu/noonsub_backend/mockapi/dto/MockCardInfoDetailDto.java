@@ -1,10 +1,23 @@
 package dmu.noonsub_backend.mockapi.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Builder
-public record MockCardInfoDetailDto(
-        String bank_code_std,
-        String member_bank_code,
-        String inquiry_agree_dtime
-) {}
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+public class MockCardInfoDetailDto{
+
+    @JsonProperty("bank_code_std")
+    private String bankCodeStd;
+
+    @JsonProperty("member_bank_code")
+    private String memberBankCode;
+
+    @JsonProperty("inquiry_agree_dtime")
+    private String inquiryAgreeDtime;
+}

@@ -37,7 +37,7 @@ public class AuthService {
     @Transactional
     public TokenBox register(SignUpRequestDto signUpRequestDto){
         Member newMember = memberService.signUp(signUpRequestDto);
-        return jwtUtil.generateTokenBox(newMember.getPhoneNumber(), newMember.getRole().name());
+        return jwtUtil.generateTokenBox(newMember.getCellNo(), newMember.getRole().name());
     }
 
     @Transactional
@@ -51,7 +51,7 @@ public class AuthService {
         }
 
         // 2. JWT 토큰 생성
-        TokenBox tokenBox = jwtUtil.generateTokenBox(member.getPhoneNumber(), member.getRole().name());
+        TokenBox tokenBox = jwtUtil.generateTokenBox(member.getCellNo(), member.getRole().name());
 
         // 3. AuthService가 직접 Refresh Token을 DB에 저장/업데이트
         TrustedDevice trustedDevice = trustedDeviceRepository.findByMemberAndDeviceId(member, loginRequestDto.getDeviceId())
@@ -79,7 +79,7 @@ public class AuthService {
 
         // 3. 새로운 AccessToken 생성
         Member member = trustedDevice.getMember();
-        String newAccessToken = jwtUtil.generateAccessToken(member.getPhoneNumber(), member.getRole().name());
+        String newAccessToken = jwtUtil.generateAccessToken(member.getCellNo(), member.getRole().name());
 
         // 4. 새로운 사용 시간 업데이트
         trustedDevice.updateRefreshToken(trustedDevice.getRefreshToken());

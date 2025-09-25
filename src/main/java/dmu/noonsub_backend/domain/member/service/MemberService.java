@@ -20,18 +20,18 @@ public class MemberService {
     private final JwtUtil jwtUtil;
 
     public boolean existsByCi(String ci){
-        return memberRepository.findByCi(ci).isPresent();
+        return memberRepository.findByUserCi(ci).isPresent();
     }
 
     // 전화번호로 사용자 조회
     public Member getMemberByPhoneNumber(String phoneNumber) {
-        return memberRepository.findByPhoneNumber(phoneNumber)
+        return memberRepository.findByCellNo(phoneNumber)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
     }
 
     // 회원 존재 여부 확인
     public boolean existsByPhoneNumber(String phoneNumber) {
-        return memberRepository.findByPhoneNumber(phoneNumber).isPresent();
+        return memberRepository.findByCellNo(phoneNumber).isPresent();
     }
 
     @Transactional
@@ -51,8 +51,8 @@ public class MemberService {
         Member member = Member.builder()
                 .name(signUpRequestDto.getName())
                 .residentNumber(signUpRequestDto.getResidentNumber())
-                .phoneNumber(signUpRequestDto.getPhoneNumber())
-                .ci(signUpRequestDto.getCi())
+                .cellNo(signUpRequestDto.getPhoneNumber())
+                .userCi(signUpRequestDto.getCi())
                 .mobileCarrier(signUpRequestDto.getMobileCarrier())
                 .pin(encodedPin)
                 .role(Role.USER)
