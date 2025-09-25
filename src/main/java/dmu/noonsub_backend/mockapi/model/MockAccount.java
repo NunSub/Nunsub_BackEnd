@@ -41,9 +41,9 @@ public class MockAccount {
     private String inquiryAgreeDtime;
     private String transferAgreeYn;
     private String transferAgreeDtime;
+
     private String payerNum;
     private long balance;
-
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MockTransaction> transactions = new ArrayList<>();

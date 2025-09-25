@@ -1,16 +1,19 @@
 package dmu.noonsub_backend.mockapi.service;
 
+
 import dmu.noonsub_backend.domain.openbanking.dto.*;
 import dmu.noonsub_backend.mockapi.dto.*;
 import dmu.noonsub_backend.mockapi.model.MockUser;
 import dmu.noonsub_backend.mockapi.repository.MockUserRepository;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+
 import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,6 +29,7 @@ public class MockUserService {
     }
 
     @Transactional(readOnly = true)
+
     public OpenBankingUserInfoResponseDto getUserInfo(String userSeqNo) {
         // 로그 추가
         log.info(">> [START] MockUserService.getUserInfo - Attempting to find user with UserSeqNo: {}",

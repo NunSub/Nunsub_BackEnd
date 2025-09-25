@@ -1,6 +1,5 @@
 package dmu.noonsub_backend.mockapi.repository;
 
-
 import dmu.noonsub_backend.mockapi.model.MockTransaction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
