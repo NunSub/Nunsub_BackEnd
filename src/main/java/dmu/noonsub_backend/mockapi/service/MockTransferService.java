@@ -5,8 +5,14 @@ import dmu.noonsub_backend.mockapi.model.MockAccount;
 import dmu.noonsub_backend.mockapi.model.MockTransaction;
 import dmu.noonsub_backend.mockapi.repository.MockAccountRepository;
 import dmu.noonsub_backend.mockapi.repository.MockTransactionRepository;
+import jakarta.persistence.EntityManager;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional; // 추가
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -15,30 +21,28 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class MockTransferService {
 
     private final MockAccountRepository accountRepository; // 수정
     private final MockTransactionRepository transactionRepository;
-
-    public MockTransferService(MockAccountRepository accountRepository, MockTransactionRepository transactionRepository) { // 수정
-        this.accountRepository = accountRepository;
-        this.transactionRepository = transactionRepository;
-    }
+    private final EntityManager entityManager;
+    private static final int PAGE_SIZE = 25; // 한 페이지에 표시할 거래 내역 수
 
     @Transactional // DB 데이터 변경이 있으므로 트랜잭션 처리
     public WithdrawResponseDto processWithdrawal(WithdrawRequestDto dto) {
-        Optional<MockAccount> accountOpt = accountRepository.findByFintechUseNum(dto.fintech_use_num());
+        Optional<MockAccount> accountOpt = accountRepository.findByFintechUseNum(dto.getFintechUseNum());
 
         if (accountOpt.isEmpty()) {
-            return WithdrawResponseDto.builder().rsp_code("A0304").rsp_message("핀테크이용번호 불일치").build();
+            return WithdrawResponseDto.builder().rspCode("A0304").rspMessage("핀테크이용번호 불일치").build();
         }
 
         MockAccount account = accountOpt.get();
-        long requestAmount = Long.parseLong(dto.tran_amt());
+        long requestAmount = Long.parseLong(dto.getTranAmt());
 
         if (account.getBalance() < requestAmount) {
-            return WithdrawResponseDto.builder().rsp_code("A0008").rsp_message("잔액 부족")
-                    .wd_limit_remain_amt(String.valueOf(account.getBalance())).build();
+            return WithdrawResponseDto.builder().rspCode("A0008").rspMessage("잔액 부족")
+                    .wdLimitRemainAmt(String.valueOf(account.getBalance())).build();
         }
 
         // 잔액 차감
@@ -46,11 +50,11 @@ public class MockTransferService {
         accountRepository.save(account); // 변경된 내용을 DB에 저장
 
         return WithdrawResponseDto.builder()
-                .api_tran_id("MOCK_API_TRAN_ID_" + System.currentTimeMillis())
-                .rsp_code("A0000").rsp_message("처리 성공")
-                .fintech_use_num(dto.fintech_use_num())
-                .tran_amt(dto.tran_amt())
-                .wd_limit_remain_amt(String.valueOf(account.getBalance()))
+                .apiTranId("MOCK_API_TRAN_ID_" + System.currentTimeMillis())
+                .rspCode("A0000").rspMessage("처리 성공")
+                .fintechUseNum(dto.getFintechUseNum())
+                .tranAmt(dto.getTranAmt())
+                .wdLimitRemainAmt(String.valueOf(account.getBalance()))
                 .build();
     }
 
@@ -58,66 +62,91 @@ public class MockTransferService {
     public MockBalanceResponseDto getBalance(String fintechUseNum) {
         return accountRepository.findByFintechUseNum(fintechUseNum)
                 .map(account -> MockBalanceResponseDto.builder()
-                        .api_tran_id("MOCK_API_TRAN_ID_" + System.currentTimeMillis())
-                        .api_tran_dtm(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")))
-                        .rsp_code("A0000").rsp_message("정상")
-                        .balance_amt(String.valueOf(account.getBalance()))
+                        .apiTranId("MOCK_API_TRAN_ID_" + System.currentTimeMillis())
+                        .apiTranDtm(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")))
+                        .rspCode("A0000").rspMessage("정상")
+                        .balanceAmt(String.valueOf(account.getBalance()))
                         .build())
                 .orElse(MockBalanceResponseDto.builder()
-                        .api_tran_id("MOCK_API_TRAN_ID_" + System.currentTimeMillis())
-                        .api_tran_dtm(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")))
-                        .rsp_code("A0304").rsp_message("핀테크이용번호 불일치")
-                        .balance_amt("0")
+                        .apiTranId("MOCK_API_TRAN_ID_" + System.currentTimeMillis())
+                        .apiTranDtm(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")))
+                        .rspCode("A0304").rspMessage("핀테크이용번호 불일치")
+                        .balanceAmt("0")
                         .build());
     }
 
     @Transactional(readOnly = true)
-    public MockTransactionResponseDto getTransactionHistory(String fintechUseNum, String fromDate, String toDate, String inquiryType) {
+    public MockTransactionResponseDto getTransactionHistory(
+            String fintechUseNum, String fromDate, String toDate,
+            String inquiryType, String beforeInquiryTraceInfo) {
         Optional<MockAccount> accountOpt = accountRepository.findByFintechUseNum(fintechUseNum);
 
         if (accountOpt.isEmpty()) {
-            return MockTransactionResponseDto.builder().rsp_code("A0304").rsp_message("핀테크이용번호 불일치").build();
+            return MockTransactionResponseDto.builder().rspCode("A0304").rspMessage("핀테크이용번호 불일치").build();
         }
 
         MockAccount account = accountOpt.get();
 
-        List<MockTransaction> transactions;
-
-        // 조회구분코드(inquiryType)에 따른 분기 처리
-        if ("A".equals(inquiryType)) { // 전체
-            transactions = transactionRepository.findByAccountIdAndTranDateBetweenOrderByTranDateDescTranTimeDesc(account.getId(), fromDate, toDate);
-        } else {
-            String inoutType = "I".equals(inquiryType) ? "입금" : "출금";
-            transactions = transactionRepository.findByAccountIdAndInoutTypeAndTranDateBetweenOrderByTranDateDescTranTimeDesc(account.getId(), inoutType, fromDate, toDate);
+        // 페이징 처리 로직 추가
+        int page = 0; // 기본 페이지 0
+        if (StringUtils.hasText(beforeInquiryTraceInfo)) {
+            try {
+                page = Integer.parseInt(beforeInquiryTraceInfo);
+            } catch (NumberFormatException e) {
+                // 파라미터가 숫자가 아니면 그냥 0페이지로 처리
+                page = 0;
+            }
         }
 
-        List<MockTransactionDetailDto> resList = transactions.stream()
+        int pageSize = 25; // API 명세에 따라 한 페이지 최대 25건
+        Pageable pageable = PageRequest.of(page, pageSize);
+
+        Page<MockTransaction> transactionsPage;
+
+        // 조회구분코드(inquiryType)에 따른 분기 처리
+        if ("A".equals(inquiryType)) {
+            transactionsPage = transactionRepository.findByAccountIdAndTranDateBetweenOrderByTranDateDescTranTimeDesc(
+                    account.getId(), fromDate, toDate, pageable);
+        } else {
+            String inoutType = "I".equals(inquiryType) ? "입금" : "출금";
+            transactionsPage = transactionRepository.findByAccountIdAndInoutTypeAndTranDateBetweenOrderByTranDateDescTranTimeDesc(
+                    account.getId(), inoutType, fromDate, toDate, pageable);
+        }
+
+        List<MockTransactionDetailDto> resList = transactionsPage.getContent().stream()
                 .map(t -> MockTransactionDetailDto.builder()
-                        .tran_date(t.getTranDate())
-                        .tran_time(t.getTranTime())
-                        .inout_type(t.getInoutType())
-                        .tran_type(t.getTranType())
-                        .print_content(t.getPrintContent())
-                        .tran_amt(String.valueOf(t.getTranAmt()))
-                        .after_balance_amt(String.valueOf(t.getAfterBalanceAmt()))
-                        .branch_name(t.getBranchName())
+                        .tranDate(t.getTranDate())
+                        .tranTime(t.getTranTime())
+                        .inoutType(t.getInoutType())
+                        .tranType(t.getTranType())
+                        .printedContent(t.getPrintContent())
+                        .tranAmt(String.valueOf(t.getTranAmt()))
+                        .afterBalanceAmt(String.valueOf(t.getAfterBalanceAmt()))
+                        .branchName(t.getBranchName())
                         .build())
                 .collect(Collectors.toList());
 
+        boolean hasNextPage = transactionsPage.hasNext();
+
+        String nextPageTraceInfo = null;
+        if (hasNextPage) {
+            nextPageTraceInfo = String.valueOf(page + 1);
+        }
+
         return MockTransactionResponseDto.builder()
-                .api_tran_id("MOCK_API_TRAN_ID_" + System.currentTimeMillis())
-                .api_tran_dtm(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")))
-                .rsp_code("A0000")
-                .rsp_message("정상")
-                .bank_tran_id("F123456789U4BC34239Z") // Mock 거래고유번호
-                .bank_tran_date(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")))
-                .bank_name(account.getBank().getBankName())
-                .fintech_use_num(account.getFintechUseNum())
-                .balance_amt(String.valueOf(account.getBalance()))
-                .page_record_cnt(String.valueOf(resList.size()))
-                .next_page_yn("N") // Mock이므로 단순하게 'N'으로 처리
-                .befor_inquiry_trace_info("")
-                .res_list(resList)
+                .apiTranId("MOCK_API_TRAN_ID_" + System.currentTimeMillis())
+                .apiTranDtm(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")))
+                .rspCode("A0000")
+                .rspMessage("정상")
+                .bankTranId("F123456789U4BC34239Z")
+                .bankTranDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")))
+                .bankName(account.getBank().getBankName())
+                .fintechUseNum(account.getFintechUseNum())
+                .balanceAmt(String.valueOf(account.getBalance()))
+                .pageRecordCnt(String.valueOf(transactionsPage.getNumberOfElements()))
+                .nextPageYn(hasNextPage ? "Y" : "N")
+                .beforeInquiryTraceInfo(nextPageTraceInfo)
+                .resList(resList)
                 .build();
     }
 }

@@ -1,16 +1,24 @@
 package dmu.noonsub_backend.mockapi.service;
 
+
+import dmu.noonsub_backend.domain.openbanking.dto.*;
 import dmu.noonsub_backend.mockapi.dto.*;
 import dmu.noonsub_backend.mockapi.model.MockUser;
 import dmu.noonsub_backend.mockapi.repository.MockUserRepository;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+
+import java.util.Collections;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class MockUserService {
 
@@ -21,74 +29,103 @@ public class MockUserService {
     }
 
     @Transactional(readOnly = true)
-    public MockUserInfoResponseDto getUserInfo(String userSeqNo) {
-        return userRepository.findByUserSeqNo(userSeqNo)
-                .map(this::mapToUserInfoResponseDto)
-                .orElse(buildUserNotFoundResponse());
+
+    public OpenBankingUserInfoResponseDto getUserInfo(String userSeqNo) {
+        // 로그 추가
+        log.info(">> [START] MockUserService.getUserInfo - Attempting to find user with UserSeqNo: {}",
+                userSeqNo);
+
+        // DB에서 사용자 조회
+        Optional<MockUser> userOptional = userRepository.findByUserSeqNo(userSeqNo);
+
+        if (userOptional.isPresent()) {
+            // 사용자를 찾았을 경우
+            log.info("++ User found in DB. Proceeding to map DTO. User: {}", userOptional.get().getUserName());
+            return mapToUserInfoResponseDto(userOptional.get());
+        } else {
+            // 사용자를 찾지 못했을 경우
+            log.warn("!! User NOT found in DB. Building 'User Not Found' response.");
+            return buildUserNotFoundResponse();
+        }
     }
 
-    private MockUserInfoResponseDto mapToUserInfoResponseDto(MockUser user) {
-        return MockUserInfoResponseDto.builder()
-                .api_tran_id("MOCK_API_TRAN_ID_" + System.currentTimeMillis())
-                .api_tran_dtm(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")))
-                .rsp_code("A0000")
-                .rsp_message("정상 처리")
-                .user_seq_no(user.getUserSeqNo())
-                .user_ci(user.getCi())
-                .user_name(user.getUserName())
-                .res_cnt(String.valueOf(user.getAccounts().size()))
-                .res_list(user.getAccounts().stream().map(account ->
-                        MockAccountDetailDto.builder()
-                                .fintech_use_num(account.getFintechUseNum())
-                                .account_alias(account.getAccountAlias())
-                                .bank_code_std(account.getBank().getBankCodeStd())
-                                .bank_name(account.getBank().getBankName())
-                                .account_num_masked(account.getAccountNumMasked())
-                                .account_holder_name(account.getAccountHolderName())
-                                .account_type(account.getAccountType())
-                                .inquiry_agree_yn(account.getInquiryAgreeYn())
-                                .transfer_agree_yn(account.getTransferAgreeYn())
+    private OpenBankingUserInfoResponseDto mapToUserInfoResponseDto(MockUser user) {
+        log.info(">> [EXEC] Mapping user '{}' to DTO", user.getUserName());
+        OpenBankingUserInfoResponseDto responseDto = new OpenBankingUserInfoResponseDto(
+                "MOCK_API_TRAN_ID_" + System.currentTimeMillis(),
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSS")),
+                "A0000",
+                "정상 처리",
+                user.getUserSeqNo(),
+                user.getCi(),
+                user.getUserName(),
+                user.getUserInfo(),
+                user.getUserGender(),
+                user.getUserCellNo(),
+                user.getUserEmail(),
+                String.valueOf(user.getAccounts().size()),
+                user.getAccounts().stream().map(account ->
+                        AccountDetailDto.builder()
+                                .fintechUseNum(account.getFintechUseNum())
+                                .accountAlias(account.getAccountAlias())
+                                .bankCodeStd(account.getBank().getBankCodeStd())
+                                .bankName(account.getBank().getBankName())
+                                .accountNumMasked(account.getAccountNumMasked())
+                                .accountHolderName(account.getAccountHolderName())
+                                .accountHolderType(account.getAccountHolderType())
+                                .accountType(account.getAccountType())
+                                .inquiryAgreeYn(account.getInquiryAgreeYn())
+                                .transferAgreeYn(account.getTransferAgreeYn())
+                                .payerNum("12345") // 예시 payerNum
                                 .build()
-                ).collect(Collectors.toList()))
-                .inquiry_card_cnt(String.valueOf(user.getCardInfos().size()))
-                .inquiry_card_list(user.getCardInfos().stream().map(card ->
-                        MockCardInfoDetailDto.builder()
-                                .bank_code_std(card.getBankCodeStd())
-                                .member_bank_code(card.getMemberBankCode())
-                                .inquiry_agree_dtime(card.getInquiryAgreeDtime())
-                                .build()
-                ).collect(Collectors.toList()))
-                // --- 👇 Pay, Insurance, Loan 정보 매핑 추가 ---
-                .inquiry_pay_cnt(String.valueOf(user.getPayInfos().size()))
-                .inquiry_pay_list(user.getPayInfos().stream().map(pay ->
-                        MockPayInfoDetailDto.builder()
-                                .bank_code_std(pay.getBankCodeStd())
-                                .inquiry_agree_dtime(pay.getInquiryAgreeDtime())
-                                .build()
-                ).collect(Collectors.toList()))
-                .inquiry_insurance_cnt(String.valueOf(user.getInsuranceInfos().size()))
-                .inquiry_insurance_list(user.getInsuranceInfos().stream().map(insurance ->
-                        MockInsuranceInfoDetailDto.builder()
-                                .bank_code_std(insurance.getBankCodeStd())
-                                .inquiry_agree_dtime(insurance.getInquiryAgreeDtime())
-                                .build()
-                ).collect(Collectors.toList()))
-                .inquiry_loan_cnt(String.valueOf(user.getLoanInfos().size()))
-                .inquiry_loan_list(user.getLoanInfos().stream().map(loan ->
-                        MockLoanInfoDetailDto.builder()
-                                .bank_code_std(loan.getBankCodeStd())
-                                .inquiry_agree_dtime(loan.getInquiryAgreeDtime())
-                                .build()
-                ).collect(Collectors.toList()))
-                .build();
+                ).collect(Collectors.toList()),
+                String.valueOf(user.getCardInfos().size()),
+                user.getCardInfos().stream().map(card ->
+                        new CardInfoDetailDto(
+                                card.getBankCodeStd(),
+                                card.getMemberBankCode(),
+                                card.getInquiryAgreeDtime()
+                        )
+                ).collect(Collectors.toList()),
+                String.valueOf(user.getPayInfos().size()),
+                user.getPayInfos().stream().map(pay ->
+                        new PayInfoDetailDto(
+                                pay.getBankCodeStd(),
+                                pay.getInquiryAgreeDtime()
+                        )
+                ).collect(Collectors.toList()),
+                String.valueOf(user.getInsuranceInfos().size()),
+                user.getInsuranceInfos().stream().map(insurance ->
+                        new InsuranceInfoDetailDto(
+                                insurance.getBankCodeStd(),
+                                insurance.getInquiryAgreeDtime()
+                        )
+                ).collect(Collectors.toList()),
+                String.valueOf(user.getLoanInfos().size()),
+                user.getLoanInfos().stream().map(loan ->
+                        new LoanInfoDetailDto(
+                                loan.getBankCodeStd(),
+                                loan.getInquiryAgreeDtime()
+                        )
+                ).collect(Collectors.toList())
+        );
+        log.info("Mapped MockUser to OpenBankingUserInfoResponseDto: {}", responseDto);
+        return responseDto;
     }
 
-    private MockUserInfoResponseDto buildUserNotFoundResponse() {
-        return MockUserInfoResponseDto.builder()
-                .api_tran_id("MOCK_API_TRAN_ID_" + System.currentTimeMillis())
-                .api_tran_dtm(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")))
-                .rsp_code("A0313")
-                .rsp_message("사용자 불일치")
-                .build();
+    private OpenBankingUserInfoResponseDto buildUserNotFoundResponse() {
+        log.info(">> [EXEC] Building 'User Not Found' response DTO.");
+        return new OpenBankingUserInfoResponseDto(
+                "MOCK_API_TRAN_ID_" + System.currentTimeMillis(),
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")),
+                "A0313",
+                "사용자 불일치",
+                null, null, null, null, null, null, null,
+                "0", Collections.emptyList(),
+                "0", Collections.emptyList(),
+                "0", Collections.emptyList(),
+                "0", Collections.emptyList(),
+                "0", Collections.emptyList()
+        );
     }
 }

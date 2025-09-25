@@ -68,7 +68,9 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/swagger-ui/**",
                                 "/api/v3/api-docs/**",
-                                "/api/swagger-ui.html"
+                                "/api/swagger-ui.html",
+                                "/oauth/**",
+                                "/v2.0/**"
                         ).permitAll()
                         .requestMatchers("/api/auth/**", "/api/openbanking/**", "/mock/**","/api/health-check").permitAll()
                         .requestMatchers("/api/admin/**").hasRole(Role.ADMIN.name())

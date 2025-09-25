@@ -1,25 +1,48 @@
 package dmu.noonsub_backend.mockapi.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import java.util.List;
 
 @Builder
-public record MockTransactionResponseDto(
-        String api_tran_id,
-        String api_tran_dtm,
-        String rsp_code,
-        String rsp_message,
-        String bank_tran_id,
-        String bank_tran_date,
-        String bank_code_tran,
-        String bank_rsp_code,
-        String bank_rsp_message,
-        String bank_name,
-        String fintech_use_num,
-        String balance_amt,
-        String page_record_cnt,
-        String next_page_yn,
-        String befor_inquiry_trace_info,
-        List<MockTransactionDetailDto> res_list
-) {
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+public class MockTransactionResponseDto{
+    @JsonProperty("api_tran_id")
+    private String apiTranId;
+    @JsonProperty("api_tran_dtm")
+    private String apiTranDtm;
+    @JsonProperty("rsp_code")
+    private String rspCode;
+    @JsonProperty("rsp_message")
+    private String rspMessage;
+    @JsonProperty("bank_tran_id")
+    private String bankTranId;
+    @JsonProperty("bank_tran_date")
+    private String bankTranDate;
+    @JsonProperty("bank_code_tran")
+    private String bankCodeTran;
+    @JsonProperty("bank_rsp_code")
+    private String bankRspCode;
+    @JsonProperty("bank_rsp_message")
+    private String bankRspMessage;
+    @JsonProperty("bank_name")
+    private String bankName;
+    @JsonProperty("fintech_use_num")
+    private String fintechUseNum;
+    @JsonProperty("balance_amt")
+    private String balanceAmt;
+    @JsonProperty("page_record_cnt")
+    private String pageRecordCnt;
+    @JsonProperty("next_page_yn")
+    private String nextPageYn;
+    @JsonProperty("before_inquiry_trace_info")
+    private String beforeInquiryTraceInfo;
+    @JsonProperty("res_list")
+    private List<MockTransactionDetailDto> resList;
 }

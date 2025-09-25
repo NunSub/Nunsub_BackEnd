@@ -1,14 +1,15 @@
 package dmu.noonsub_backend.domain.openbanking.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class OpenBankingUserInfoResponseDto {
+
     @JsonProperty("api_tran_id")
     private String apiTranId;
 
@@ -30,62 +31,46 @@ public class OpenBankingUserInfoResponseDto {
     @JsonProperty("user_name")
     private String userName;
 
+    @JsonProperty("user_info")
+    private String userInfo;
+
+    @JsonProperty("user_gender")
+    private String userGender;
+
+    @JsonProperty("user_cell_no")
+    private String userCellNo;
+
+    @JsonProperty("user_email")
+    private String userEmail;
+
     @JsonProperty("res_cnt")
     private String resCnt;
 
     @JsonProperty("res_list")
-    private List<AccountInfo> resList;
+    private List<AccountDetailDto> resList;
 
-    @Getter
-    @NoArgsConstructor
-    public static class AccountInfo {
+    @JsonProperty("inquiry_card_cnt")
+    private String inquiryCardCnt;
 
-        @JsonProperty("fintech_use_num")
-        private String fintechUseNum;
+    @JsonProperty("inquiry_card_list")
+    private List<CardInfoDetailDto> inquiryCardList;
 
-        @JsonProperty("account_alias")
-        private String accountAlias;
+    @JsonProperty("inquiry_pay_cnt")
+    private String inquiryPayCnt;
 
-        @JsonProperty("bank_code_std")
-        private String bankCodeStd;
+    @JsonProperty("inquiry_pay_list")
+    private List<PayInfoDetailDto> inquiryPayList;
 
-        @JsonProperty("bank_code_sub")
-        private String bankCodeSub;
+    @JsonProperty("inquiry_insurance_cnt")
+    private String inquiryInsuranceCnt;
 
-        @JsonProperty("bank_name")
-        private String bankName;
+    @JsonProperty("inquiry_insurance_list")
+    private List<InsuranceInfoDetailDto> inquiryInsuranceList;
 
-        @JsonProperty("savings_bank_name")
-        private String savingsBankName;
+    @JsonProperty("inquiry_loan_cnt")
+    private String inquiryLoanCnt;
 
-        @JsonProperty("account_num_masked")
-        private String accountNumMasked;
+    @JsonProperty("inquiry_loan_list")
+    private List<LoanInfoDetailDto> inquiryLoanList;
 
-        @JsonProperty("account_seq")
-        private String accountSeq;
-
-        @JsonProperty("account_holder_name")
-        private String accountHolderName;
-
-        @JsonProperty("account_holder_type")
-        private String accountHolderType;
-
-        @JsonProperty("account_type")
-        private String accountType;
-
-        @JsonProperty("inquiry_agree_yn")
-        private String inquiryAgreeYn;
-
-        @JsonProperty("inquiry_agree_dtime")
-        private String inquiryAgreeDtime;
-
-        @JsonProperty("transfer_agree_yn")
-        private String transferAgreeYn;
-
-        @JsonProperty("transfer_agree_dtime")
-        private String transferAgreeDtime;
-
-        @JsonProperty("payer_num")
-        private String payerNum;
-    }
 }

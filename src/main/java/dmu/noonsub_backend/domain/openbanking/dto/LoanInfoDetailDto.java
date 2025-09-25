@@ -1,4 +1,4 @@
-package dmu.noonsub_backend.mockapi.dto;
+package dmu.noonsub_backend.domain.openbanking.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -10,14 +10,12 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MockCardInfoDetailDto{
+public class LoanInfoDetailDto {
 
     @JsonProperty("bank_code_std")
     private String bankCodeStd;
 
-    @JsonProperty("member_bank_code")
-    private String memberBankCode;
-
     @JsonProperty("inquiry_agree_dtime")
     private String inquiryAgreeDtime;
+
 }

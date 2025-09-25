@@ -4,8 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dmu.noonsub_backend.domain.openbanking.dto.OpenBankingUserInfoResponseDto;
 import dmu.noonsub_backend.domain.openbanking.dto.OpenBankingTokenResponseDto;
 import dmu.noonsub_backend.domain.openbanking.dto.TokenExchangeRequestDto;
-import dmu.noonsub_backend.domain.openbanking.dto.TransactionHistoryDto;
+import dmu.noonsub_backend.domain.openbanking.dto.TransactionDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -25,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class OpenBankingClient {
@@ -52,8 +54,7 @@ public class OpenBankingClient {
                 new BasicNameValuePair("code", requestDto.getCode()),
                 new BasicNameValuePair("client_id", properties.getClientId()),
                 new BasicNameValuePair("client_secret", properties.getClientSecret()),
-                new BasicNameValuePair("redirect_uri", properties.getRedirectUri()),
-                new BasicNameValuePair("code_verifier", requestDto.getCode_verifier())
+                new BasicNameValuePair("redirect_uri", properties.getRedirectUri())
         );
         post.setEntity(new UrlEncodedFormEntity(params, StandardCharsets.UTF_8));
 
@@ -64,6 +65,9 @@ public class OpenBankingClient {
 
             if (statusCode != 200) {
                 throw new RuntimeException("Failed to exchange open banking token. Status: " + statusCode + ", Body: " + responseBody);
+            }
+            if(responseBody == null || responseBody.trim().isEmpty()) {
+                throw new RuntimeException("오픈뱅킹 유저 정보를 가져오지 못했습니다 info : 응답 Body가 비었습니다.");
             }
             return objectMapper.readValue(responseBody, OpenBankingTokenResponseDto.class);
         } catch (IOException e) {
@@ -78,40 +82,58 @@ public class OpenBankingClient {
                 .encode()
                 .toUriString();
         HttpGet get = new HttpGet(url);
+        log.info("url : {}", url);
 
         // 2. 헤더에 Access Token 설정
         get.setHeader("Authorization", "Bearer " + accessToken);
+        log.info("accessToken : {}", accessToken);
+        log.info(">> [CALL] OpenBankingClient.getUserInfo - URL: {}, UserSeqNo: {}", url, userSeqNo);
 
         // 3. mTLS가 적용된 HttpClient로 요청 실행
         try (CloseableHttpResponse response = getClient().execute(get)){
-            String responseBody = EntityUtils.toString(response.getEntity());
+            String responseBodies = response.getEntity() != null
+                    ? EntityUtils.toString(response.getEntity())
+                    : null;
             int statusCode = response.getStatusLine().getStatusCode();
 
+
+            log.info("<< [RECV] OpenBanking API Response: status={}, body={}", statusCode, responseBodies);
+
             if (statusCode != 200) {
-                throw new RuntimeException("Failed to fetch open banking user info. Status: " + statusCode + ", Body: " + responseBody);
+                throw new RuntimeException("Failed to fetch open banking user info. Status: " + statusCode + ", Body: " + responseBodies);
             }
-            return objectMapper.readValue(responseBody, OpenBankingUserInfoResponseDto.class);
+            if (responseBodies == null || responseBodies.trim().isEmpty()) {
+                // 최초 에러가 발생한 지점
+                log.error("!! Response body is empty, cannot map to DTO.");
+                throw new RuntimeException("오픈뱅킹 유저 정보를 가져오지 못했습니다: 응답 Body가 비었습니다.");
+            }
+
+            return objectMapper.readValue(responseBodies, OpenBankingUserInfoResponseDto.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public TransactionHistoryDto.OpenBankingResponse getTransactionHistory(String accessToken, String fintechUseNum, String fromDate,
-                                                                           String toDate, String sortOrder) {
-        String inquiryType = "A"; // A: All
+    public TransactionDto.OpenBankingResponse getTransactionHistory(
+            String accessToken, String fintechUseNum, String fromDate, String toDate,
+            String sortOrder, String inquiryType, String beforeInquiryTraceInfo) {
         String tranDtime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
 
-        String url = UriComponentsBuilder.fromHttpUrl(properties.getBaseUrl() + "/v2.0/account/transaction_list/fin_num")
+        UriComponentsBuilder urlBuilder = UriComponentsBuilder.fromHttpUrl(properties.getBaseUrl() + "/v2.0/account/transaction_list/fin_num")
                 .queryParam("bank_tran_id", generateBankTranId())
                 .queryParam("fintech_use_num", fintechUseNum)
                 .queryParam("inquiry_type", inquiryType)
-                .queryParam("inquiry_base", "D") // D: Date
+                .queryParam("inquiry_base", "D")
                 .queryParam("from_date", fromDate)
                 .queryParam("to_date", toDate)
                 .queryParam("sort_order", sortOrder)
-                .queryParam("tran_dtime", tranDtime)
-                .encode()
-                .toUriString();
+                .queryParam("tran_dtime", tranDtime);
+
+        if (beforeInquiryTraceInfo != null && !beforeInquiryTraceInfo.isEmpty()){
+            urlBuilder.queryParam("before_inquiry_trace_info", beforeInquiryTraceInfo);
+        }
+
+        String url = urlBuilder.encode().toUriString();
 
         HttpGet get = new HttpGet(url);
         get.setHeader("Authorization", "Bearer " + accessToken);
@@ -122,7 +144,7 @@ public class OpenBankingClient {
             if (statusCode != 200) {
                 throw new RuntimeException("Failed to get transaction history. Status: " + statusCode + ", Body: " + responseBody);
             }
-            return objectMapper.readValue(responseBody, TransactionHistoryDto.OpenBankingResponse.class);
+            return objectMapper.readValue(responseBody, TransactionDto.OpenBankingResponse.class);
         } catch (Exception e) {
             throw new RuntimeException("Error during getting transaction history.", e);
         }

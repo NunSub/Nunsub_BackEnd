@@ -1,14 +1,15 @@
 package dmu.noonsub_backend.domain.openbanking.repository;
 
 import dmu.noonsub_backend.domain.member.entity.Member;
-import dmu.noonsub_backend.domain.openbanking.entity.MemberBank;
+import dmu.noonsub_backend.domain.member.entity.MemberAccounts;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface MemberBankRepository extends JpaRepository<MemberBank,String> {
-    Optional<MemberBank> findByMemberAndFintechUseNum(Member member, String fintechUseNum);
-    List<MemberBank> findAllByMemberAndActiveTrue(Member member);
-    List<MemberBank> findAllByMember(Member member);
+public interface MemberBankRepository extends JpaRepository<MemberAccounts,String> {
+    Optional<MemberAccounts> findByMemberAndFintechUseNum(Member member, String fintechUseNum);
+    List<MemberAccounts> findAllByMember(Member member);
+
+    void deleteAllByMember(Member member);
 }
