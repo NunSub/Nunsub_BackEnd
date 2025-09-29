@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface MockUserRepository extends JpaRepository<MockUser, Long> {
     Optional<MockUser> findByUserSeqNo(String userSeqNo);
+    Optional<MockUser> findByUserCellNo(String userCellNo);
 }

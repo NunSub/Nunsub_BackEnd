@@ -60,12 +60,16 @@ public class OpenBankingService {
                 .queryParam("scope", "login inquiry transfer")
                 .queryParam("state", state)
                 .queryParam("auth_type", "0")
+                .queryParam("user_cell_no", phoneNumber)
                 .encode()// 회원 식별을 위한 전화번호 전달
                 .toUriString();
     }
 
     @Transactional
-    public OpenBankingTokenResponseDto exchangeTokenAndLinkMember(String phoneNumber, TokenExchangeRequestDto requestDto) {
+    public OpenBankingTokenResponseDto exchangeTokenAndLinkMember(
+            String phoneNumber,
+            TokenExchangeRequestDto requestDto) {
+        log.info(">>>> DB에서 다음 전화번호로 회원을 조회합니다: '{}'", phoneNumber);
         // 1. state 검증
         String savedPhoneNumber = redisTemplate.opsForValue().get(requestDto.getState());
         if (savedPhoneNumber == null || !savedPhoneNumber.equals(phoneNumber)) {

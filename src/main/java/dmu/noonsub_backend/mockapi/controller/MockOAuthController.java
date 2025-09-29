@@ -22,9 +22,10 @@ public class MockOAuthController {
     public RedirectView authorize(
             @RequestParam("redirect_uri") String redirectUri,
             @RequestParam("state") String state,
-            @RequestParam("scope") String scope) {
+            @RequestParam("scope") String scope,
+            @RequestParam("user_cell_no") String userCellNo) {
         // 실제 로직은 서비스에 위임
-        return mockOAuthService.handleAuthorize(redirectUri, state, scope);
+        return mockOAuthService.handleAuthorize(redirectUri, state, scope, userCellNo);
     }
 
     @PostMapping("/token")
@@ -34,7 +35,7 @@ public class MockOAuthController {
             @RequestParam(value = "refresh_token", required = false) String refreshToken,
             @RequestParam("client_id") String clientId) {
         // 실제 로직은 서비스에 위임
-        MockTokenDto mockToken = mockOAuthService.issueMockToken(grantType);
+        MockTokenDto mockToken = mockOAuthService.issueMockToken(grantType, code);
         return ResponseEntity.ok(mockToken);
     }
 
@@ -51,8 +52,9 @@ public class MockOAuthController {
     @GetMapping("/authorize_account")
     public RedirectView authorizeAccount(
             @RequestParam("redirect_uri") String redirectUri,
-            @RequestParam("state") String state) {
+            @RequestParam("state") String state,
+            @RequestParam("user_cell_no") String userCellNo) {
         // authorize와 로직이 유사하므로 동일한 서비스 메서드 재활용 (필요시 별도 메서드 생성)
-        return mockOAuthService.handleAuthorize(redirectUri, state, "login inquiry");
+        return mockOAuthService.handleAuthorize(redirectUri, state, "login inquiry", userCellNo);
     }
 }
