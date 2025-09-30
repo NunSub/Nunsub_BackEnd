@@ -6,8 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dmu.noonsub_backend.domain.common.exception.CustomException;
 import dmu.noonsub_backend.domain.common.exception.ErrorCode;
 import dmu.noonsub_backend.domain.member.entity.*;
+import dmu.noonsub_backend.domain.member.enums.Category;
 import dmu.noonsub_backend.domain.member.repository.*;
 import dmu.noonsub_backend.domain.member.service.MemberService;
+import dmu.noonsub_backend.domain.member.util.TransactionCategoryClassifier;
 import dmu.noonsub_backend.domain.openbanking.OpenBankingClient;
 import dmu.noonsub_backend.domain.openbanking.OpenBankingProperties;
 import dmu.noonsub_backend.domain.openbanking.dto.*;
@@ -329,6 +331,15 @@ public class OpenBankingService {
 
                     List<MemberTransaction> transactionsToSave = new ArrayList<>();
                     for (TransactionDto.Transaction txDto : apiResponse.getResList()) {
+                        // 로그 추가: API로부터 받은 printContent 값을 확인
+                        log.info(">> Processing Transaction DTO: Date={}, Time={}, Content='{}', Amount={}",
+                                txDto.getTranDate(),
+                                txDto.getTranTime(),
+                                txDto.getPrintContent(),
+                                txDto.getTranAmt()
+                        );
+                        Category category = TransactionCategoryClassifier.determineCategory(txDto.getPrintContent());
+
                         transactionsToSave.add(MemberTransaction.builder()
                                 .memberAccount(memberAccount)
                                 .tranDate(txDto.getTranDate())
@@ -336,9 +347,10 @@ public class OpenBankingService {
                                 .inoutType(txDto.getInoutType())
                                 .tranType(txDto.getTranType())
                                 .printContent(txDto.getPrintContent())
-                                .tranAmt(txDto.getTranAmt())
-                                .afterBalanceAmt(txDto.getAfterBalanceAmt())
+                                .tranAmt(Long.parseLong(txDto.getTranAmt()))
+                                .afterBalanceAmt(Long.parseLong(txDto.getAfterBalanceAmt()))
                                 .branchName(txDto.getBranchName())
+                                .category(category)
                                 .build());
                     }
                     log.info("==> [DB Save] DB에 거래내역 {}건 저장 시작.", transactionsToSave.size());

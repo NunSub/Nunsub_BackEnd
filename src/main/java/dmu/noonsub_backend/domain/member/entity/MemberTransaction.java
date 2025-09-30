@@ -1,5 +1,6 @@
 package dmu.noonsub_backend.domain.member.entity;
 
+import dmu.noonsub_backend.domain.member.enums.Category;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,12 +30,15 @@ public class MemberTransaction {
     private String inoutType;
     private String tranType;
     private String printContent;
-    private String tranAmt;
-    private String afterBalanceAmt;
+    private Long tranAmt;
+    private Long afterBalanceAmt;
     private String branchName;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Category category;
 
     @Builder
-    public MemberTransaction(MemberAccounts memberAccount, String tranDate, String tranTime, String inoutType, String tranType, String printContent, String tranAmt, String afterBalanceAmt, String branchName) {
+    public MemberTransaction(MemberAccounts memberAccount, String tranDate, String tranTime, String inoutType, String tranType, String printContent, Long tranAmt, Long afterBalanceAmt, String branchName, Category category) {
         this.memberAccount = memberAccount;
         this.tranDate = tranDate;
         this.tranTime = tranTime;
@@ -44,5 +48,10 @@ public class MemberTransaction {
         this.tranAmt = tranAmt;
         this.afterBalanceAmt = afterBalanceAmt;
         this.branchName = branchName;
+        this.category = category;
+    }
+
+    public void updateCategory(Category category) {
+        this.category = category;
     }
 }

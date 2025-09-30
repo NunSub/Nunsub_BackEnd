@@ -1,14 +1,15 @@
 package dmu.noonsub_backend.domain.member.service;
 
-import dmu.noonsub_backend.domain.common.dto.PageResponseDto;
 import dmu.noonsub_backend.domain.common.exception.CustomException;
 import dmu.noonsub_backend.domain.common.exception.ErrorCode;
 import dmu.noonsub_backend.domain.member.entity.Member;
 import dmu.noonsub_backend.domain.member.entity.MemberAccounts;
 import dmu.noonsub_backend.domain.member.entity.MemberTransaction;
+import dmu.noonsub_backend.domain.member.enums.Category;
 import dmu.noonsub_backend.domain.member.repository.TransactionRepository;
 import dmu.noonsub_backend.domain.member.spec.TransactionSpecification;
 import dmu.noonsub_backend.domain.openbanking.dto.TransactionDto;
+import dmu.noonsub_backend.domain.openbanking.dto.TransactionPageResponseDto;
 import dmu.noonsub_backend.domain.openbanking.repository.MemberBankRepository;
 import dmu.noonsub_backend.domain.openbanking.service.OpenBankingService;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MemberTransactionService {
 
     private final MemberService memberService;
@@ -31,29 +33,52 @@ public class MemberTransactionService {
     private final OpenBankingService openBankingService;
 
     @Transactional
-    public PageResponseDto<TransactionDto.Transaction> getAllTransactions(
+    public TransactionPageResponseDto getAllTransactions(
             String phoneNumber, boolean refresh, Pageable pageable) {
         if (refresh) {
             // OpenBankingService의 동기화 로직 호출
             openBankingService.syncOpenBankingInfo(phoneNumber);
         }
-        Specification<MemberTransaction> spec = createSpecForUser(phoneNumber);
-        return getTransactionsWithSpec(spec, pageable);
+        Specification<MemberTransaction> baseSpec = createSpecForUser(phoneNumber);
+        return getTransactionsWithTotals(baseSpec, pageable);
     }
 
     @Transactional
-    public PageResponseDto<TransactionDto.Transaction> getAllTransactionsByMonth(
+    public TransactionPageResponseDto getAllTransactionsByMonth(
             String phoneNumber, String yearMonth, Pageable pageable) {
         Specification<MemberTransaction> spec = createSpecForUser(phoneNumber)
                 .and(TransactionSpecification.byYearMonth(yearMonth));
-        return getTransactionsWithSpec(spec, pageable);
+        return getTransactionsWithTotals(spec, pageable);
     }
 
-    public PageResponseDto<TransactionDto.Transaction> getAllTransactionsByDate(String phoneNumber, String
-            date, Pageable pageable) {
+    public TransactionPageResponseDto getAllTransactionsByDate(
+            String phoneNumber, String date, Pageable pageable) {
         Specification<MemberTransaction> spec = createSpecForUser(phoneNumber)
                 .and(TransactionSpecification.byDate(date));
-        return getTransactionsWithSpec(spec, pageable);
+        return getTransactionsWithTotals(spec, pageable);
+    }
+
+    public TransactionPageResponseDto getAllTransactionsByInoutType(
+            String phoneNumber, String inoutType, Pageable pageable) {
+        Specification<MemberTransaction> spec = createSpecForUser(phoneNumber)
+                .and(TransactionSpecification.byInoutType(inoutType));
+        return getTransactionsWithTotals(spec, pageable);
+    }
+
+    public TransactionPageResponseDto getAllTransactionsByInoutTypeAndMonth(
+            String phoneNumber, String inoutType, String yearMonth, Pageable pageable) {
+        Specification<MemberTransaction> spec = createSpecForUser(phoneNumber)
+                .and(TransactionSpecification.byInoutType(inoutType))
+                .and(TransactionSpecification.byYearMonth(yearMonth));
+        return getTransactionsWithTotals(spec, pageable);
+    }
+
+    public TransactionPageResponseDto getAllTransactionsByInoutTypeAndDate(
+            String phoneNumber, String inoutType, String date, Pageable pageable) {
+        Specification<MemberTransaction> spec = createSpecForUser(phoneNumber)
+                .and(TransactionSpecification.byInoutType(inoutType))
+                .and(TransactionSpecification.byDate(date));
+        return getTransactionsWithTotals(spec, pageable);
     }
 
     // --- 특정 계좌 거래내역 조회 ---
@@ -98,12 +123,20 @@ public class MemberTransactionService {
     /**
      * Specification을 받아 페이징 조회 후 DTO로 변환하여 반환하는 공통 메소드
      */
-    private PageResponseDto<TransactionDto.Transaction> getTransactionsWithSpec(
+    private TransactionPageResponseDto getTransactionsWithTotals(
             Specification<MemberTransaction> spec, Pageable pageable) {
         Page<MemberTransaction> transactionPage = transactionRepository.findAll(spec, pageable);
-        Page<TransactionDto.Transaction> transactionDtoPage =
-                transactionPage.map(this::convertToTransactionDto);
-        return new PageResponseDto<>(transactionDtoPage);
+        Page<TransactionDto.Transaction> transactionDtoPage = transactionPage.map(this::convertToTransactionDto);
+
+        Specification<MemberTransaction> depositSpec = Specification.where(spec)
+                .and(TransactionSpecification.byInoutType("입금"));
+        long totalDeposit = transactionRepository.calculateTotalAmount(depositSpec);
+
+        Specification<MemberTransaction> withdrawalSpec = Specification.where(spec)
+                .and(TransactionSpecification.byInoutType("출금"));
+        long totalWithdrawal = transactionRepository.calculateTotalAmount(withdrawalSpec);
+
+        return new TransactionPageResponseDto(transactionDtoPage, totalDeposit, totalWithdrawal);
     }
 
     /**
@@ -167,10 +200,25 @@ public class MemberTransactionService {
                 .inoutType(tx.getInoutType())
                 .tranType(tx.getTranType())
                 .printContent(tx.getPrintContent())
-                .tranAmt(tx.getTranAmt())
-                .afterBalanceAmt(tx.getAfterBalanceAmt())
+                .tranAmt(String.valueOf(tx.getTranAmt()))
+                .afterBalanceAmt(String.valueOf(tx.getAfterBalanceAmt()))
                 .branchName(tx.getBranchName())
+                .category(tx.getCategory().getDescription())
                 .build();
+    }
+
+    @Transactional
+    public void updateTransactionCategory(Long transactionId, String category, String phoneNumber) {
+        Member member = memberService.getMemberByPhoneNumber(phoneNumber);
+        MemberTransaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new CustomException(ErrorCode.TRANSACTION_NOT_FOUND));
+
+        boolean isOwner = transaction.getMemberAccount().getMember().equals(member);
+        if(!isOwner) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        transaction.updateCategory(Category.fromString(category));
     }
 }
 

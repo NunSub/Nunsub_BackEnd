@@ -2,6 +2,7 @@ package dmu.noonsub_backend.domain.member.controller;
 
 import dmu.noonsub_backend.domain.common.dto.PageResponseDto;
 import dmu.noonsub_backend.domain.member.service.MemberTransactionService;
+import dmu.noonsub_backend.domain.openbanking.dto.TransactionCategoryUpdateRequestDto;
 import dmu.noonsub_backend.domain.openbanking.dto.TransactionDto;
 import dmu.noonsub_backend.global.userdetails.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -73,6 +74,84 @@ public class MemberTransactionController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "모든 계좌 입금 거래내역 페이징 조회", description = "인증된 사용자의 모든 계좌에 대한 입금 거래내역을 최신순으로 페이징하여 조회합니다.")
+    @GetMapping("/deposits")
+    public ResponseEntity<PageResponseDto<TransactionDto.Transaction>> getAllDepositTransactions(
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @Parameter(description = "페이지 번호 (0부터 시작)", example = "0") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "페이지 당 항목 수", example = "20") @RequestParam(defaultValue = "20") int size) {
+        Pageable pageable = PageRequest.of(page, size, LATEST_SORT);
+        // "입금"이라는 문자열은 오픈뱅킹 API 명세에 따라 정확한 값을 사용해야 합니다.
+        PageResponseDto<TransactionDto.Transaction> response =
+                transactionService.getAllTransactionsByInoutType(userDetails.getUsername(), "입금", pageable);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "모든 계좌 월별 입금 거래내역 페이징 조회", description = "모든 계좌에 대해 특정 '연월'의 입금 거래내역을 조회합니다.")
+    @GetMapping("/deposits/by-month")
+    public ResponseEntity<PageResponseDto<TransactionDto.Transaction>> getDepositTransactionsByMonth(
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @Parameter(description = "조회할 연월 (형식: yyyy-MM)", required = true, example = "2023-09") @RequestParam String yearMonth,
+            @Parameter(description = "페이지 번호 (0부터 시작)", example = "0") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "페이지 당 항목 수", example = "20") @RequestParam(defaultValue = "20") int size) {
+        Pageable pageable = PageRequest.of(page, size, LATEST_SORT);
+        PageResponseDto<TransactionDto.Transaction> response =
+                transactionService.getAllTransactionsByInoutTypeAndMonth(userDetails.getUsername(), "입금", yearMonth, pageable);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "모든 계좌 일별 입금 거래내역 페이징 조회", description = "모든 계좌에 대해 특정 '일자'의 입금 거래내역을 조회합니다.")
+    @GetMapping("/deposits/by-date")
+    public ResponseEntity<PageResponseDto<TransactionDto.Transaction>> getDepositTransactionsByDate(
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @Parameter(description = "조회할 일자 (형식: yyyy-MM-dd)", required = true, example = "2023-09-25") @RequestParam String date,
+            @Parameter(description = "페이지 번호 (0부터 시작)", example = "0") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "페이지 당 항목 수", example = "20") @RequestParam(defaultValue = "20") int size) {
+        Pageable pageable = PageRequest.of(page, size, LATEST_SORT);
+        PageResponseDto<TransactionDto.Transaction> response =
+                transactionService.getAllTransactionsByInoutTypeAndDate(userDetails.getUsername(), "입금", date, pageable);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "모든 계좌 출금 거래내역 페이징 조회", description = "인증된 사용자의 모든 계좌에 대한 출금 거래내역을 최신순으로 페이징하여 조회합니다.")
+    @GetMapping("/withdrawals")
+    public ResponseEntity<PageResponseDto<TransactionDto.Transaction>> getAllWithdrawalTransactions(
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @Parameter(description = "페이지 번호 (0부터 시작)", example = "0") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "페이지 당 항목 수", example = "20") @RequestParam(defaultValue = "20") int size) {
+        Pageable pageable = PageRequest.of(page, size, LATEST_SORT);
+        // "출금"이라는 문자열은 오픈뱅킹 API 명세에 따라 정확한 값을 사용해야 합니다.
+        PageResponseDto<TransactionDto.Transaction> response =
+                transactionService.getAllTransactionsByInoutType(userDetails.getUsername(), "출금", pageable);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "모든 계좌 월별 출금 거래내역 페이징 조회", description = "모든 계좌에 대해 특정 '연월'의 출금 거래내역을 조회합니다.")
+    @GetMapping("/withdrawals/by-month")
+    public ResponseEntity<PageResponseDto<TransactionDto.Transaction>> getWithdrawalTransactionsByMonth(
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @Parameter(description = "조회할 연월 (형식: yyyy-MM)", required = true, example = "2023-09") @RequestParam String yearMonth,
+            @Parameter(description = "페이지 번호 (0부터 시작)", example = "0") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "페이지 당 항목 수", example = "20") @RequestParam(defaultValue = "20") int size) {
+        Pageable pageable = PageRequest.of(page, size, LATEST_SORT);
+        PageResponseDto<TransactionDto.Transaction> response =
+                transactionService.getAllTransactionsByInoutTypeAndMonth(userDetails.getUsername(), "출금", yearMonth, pageable);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "모든 계좌 일별 출금 거래내역 페이징 조회", description = "모든 계좌에 대해 특정 '일자'의 출금 거래내역을 조회합니다.")
+    @GetMapping("/withdrawals/by-date")
+    public ResponseEntity<PageResponseDto<TransactionDto.Transaction>> getWithdrawalTransactionsByDate(
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @Parameter(description = "조회할 일자 (형식: yyyy-MM-dd)", required = true, example = "2023-09-25") @RequestParam String date,
+            @Parameter(description = "페이지 번호 (0부터 시작)", example = "0") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "페이지 당 항목 수", example = "20") @RequestParam(defaultValue = "20") int size) {
+        Pageable pageable = PageRequest.of(page, size, LATEST_SORT);
+        PageResponseDto<TransactionDto.Transaction> response =
+                transactionService.getAllTransactionsByInoutTypeAndDate(userDetails.getUsername(), "출금", date, pageable);
+        return ResponseEntity.ok(response);
+    }
+
     // --- 특정 계좌 거래내역 ---
     @Operation(summary = "특정 계좌 거래내역 페이징 조회", description = "특정 계좌(fintechUseNum)의 전체 거래내역을 최신순으로 페이징하여 조회합니다.")
     @GetMapping("/{fintechUseNum}")
@@ -132,5 +211,14 @@ public class MemberTransactionController {
         TransactionDto.Response response =
                 transactionService.getAccountTransactionsByDate(userDetails.getUsername(), fintechUseNum, date, pageable);
         return ResponseEntity.ok(response);
+    }
+    @Operation(summary = "거래내역 카테고리 수정", description = "특정 거래내역(id)의 카테고리를 수정합니다.")
+    @PutMapping("/{transactionId}/category")
+    public ResponseEntity<Void> updateTransactionCategory(
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @Parameter(description = "카테고리를 수정할 거래내역의 ID", required = true) @PathVariable Long transactionId,
+            @RequestBody TransactionCategoryUpdateRequestDto requestDto) {
+        transactionService.updateTransactionCategory(transactionId, requestDto.getCategory(), userDetails.getUsername());
+        return ResponseEntity.ok().build();
     }
 }
