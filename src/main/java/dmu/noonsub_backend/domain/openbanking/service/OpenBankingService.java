@@ -9,14 +9,17 @@ import dmu.noonsub_backend.domain.member.entity.*;
 import dmu.noonsub_backend.domain.member.enums.Category;
 import dmu.noonsub_backend.domain.member.repository.*;
 import dmu.noonsub_backend.domain.member.service.MemberService;
+import dmu.noonsub_backend.domain.member.service.SubscriptionBatchService;
 import dmu.noonsub_backend.domain.member.util.TransactionCategoryClassifier;
 import dmu.noonsub_backend.domain.openbanking.OpenBankingClient;
 import dmu.noonsub_backend.domain.openbanking.OpenBankingProperties;
 import dmu.noonsub_backend.domain.openbanking.dto.*;
 import dmu.noonsub_backend.domain.openbanking.repository.MemberBankRepository;
+import dmu.noonsub_backend.domain.subscription.service.SubscriptionService;
 import dmu.noonsub_backend.global.util.CryptoUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,8 +48,9 @@ public class OpenBankingService {
     private final OpenBankingProperties openBankingProperties;
     private final OpenBankingClient openBankingClient; // 실제 mTLS 통신을 담당할 클라이언트
     private final CryptoUtil cryptoUtil; // 토큰 암호화를 담당할 유틸리티
-    private final RedisTemplate<String, String> redisTemplate; // state, code_verifier 저장용 (추후 구현)
+    private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     public String getAuthorizationUrl(String phoneNumber) {
         // 1. CSRF 방어를 위한 state 생성
@@ -144,11 +148,14 @@ public class OpenBankingService {
             saveInsurances(member, userInfo);
             saveLoans(member, userInfo);
 
+            log.info(">> 모든 금융 정보 동기화 완료. 사용자 ID {} 에 대한 비동기 구독 분석을 시작합니다.", member.getId());
+            eventPublisher.publishEvent(new SyncCompletedEvent(member));
+
             return userInfo;
 
         } catch (Exception e) {
             log.error("Failed to sync open banking info for user: {}", phoneNumber, e);
-            throw new RuntimeException("오픈뱅킹 정보 동기화에 실패했습니다.", e);
+            throw new CustomException(ErrorCode.OPENBANKING_SYNC_FAILED);
         }
     }
 
@@ -272,7 +279,7 @@ public class OpenBankingService {
             Map<String, String> tokenData = objectMapper.readValue(tokenJson, new TypeReference<>() {});
             return cryptoUtil.decrypt(tokenData.get("accessToken"));
         } catch (Exception e) {
-            throw new RuntimeException("토큰 데이터를 파싱하거나 복호화하는 데 실패했습니다.", e);
+            throw new CustomException(ErrorCode.TOKEN_PARSE_FAILED);
         }
     }
     public String generateRandomString() {
@@ -338,7 +345,9 @@ public class OpenBankingService {
                                 txDto.getPrintContent(),
                                 txDto.getTranAmt()
                         );
+
                         Category category = TransactionCategoryClassifier.determineCategory(txDto.getPrintContent());
+                        log.info("분류 시도: 내용='{}', 분류 결과='{}'", txDto.getPrintContent(), category);
 
                         transactionsToSave.add(MemberTransaction.builder()
                                 .memberAccount(memberAccount)
@@ -372,6 +381,7 @@ public class OpenBankingService {
             } catch (Exception e) {
                 log.error("!! 페이지 동기화 중 예외 발생. FintechUseNum: {}. 해당 계좌 동기화를 중단합니다.",
                         memberAccount.getFintechUseNum(), e);
+                new CustomException(ErrorCode.OPENBANKING_SYNC_FAILED);
                 nextPageYn = "N"; // 에러 발생 시 해당 계좌의 동기화 중단
             }
         }
@@ -391,4 +401,5 @@ public class OpenBankingService {
     public String getPhoneNumberByState(String state) {
         return redisTemplate.opsForValue().get(state);
     }
+
 }

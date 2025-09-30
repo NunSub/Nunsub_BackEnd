@@ -1,6 +1,7 @@
 package dmu.noonsub_backend.domain.member.entity;
 
 import dmu.noonsub_backend.domain.member.enums.Category;
+import dmu.noonsub_backend.domain.subscription.entity.Subscription;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,6 +25,10 @@ public class MemberTransaction {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_account_id", nullable = false)
     private MemberAccounts memberAccount; // 어떤 계좌의 거래내역인지 연결
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "subscription_id")
+    private Subscription subscription;
 
     private String tranDate;
     private String tranTime;
@@ -53,5 +58,12 @@ public class MemberTransaction {
 
     public void updateCategory(Category category) {
         this.category = category;
+    }
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public void setSubscription(Subscription subscription) {
+        this.subscription = subscription;
     }
 }
