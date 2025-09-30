@@ -13,4 +13,6 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
     Optional<Subscription> findByMemberAndServiceName(Member member, String serviceName);
 
     List<Subscription> findAllByMemberAndSubStatusOrderByNextPaymentDateAsc(Member member, SubscriptionStatus status);
+
+    List<Subscription> findAllByMember(Member member);
 }

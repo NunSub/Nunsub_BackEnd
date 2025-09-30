@@ -15,6 +15,8 @@ import dmu.noonsub_backend.domain.openbanking.OpenBankingClient;
 import dmu.noonsub_backend.domain.openbanking.OpenBankingProperties;
 import dmu.noonsub_backend.domain.openbanking.dto.*;
 import dmu.noonsub_backend.domain.openbanking.repository.MemberBankRepository;
+import dmu.noonsub_backend.domain.subscription.entity.Subscription;
+import dmu.noonsub_backend.domain.subscription.repository.SubscriptionRepository;
 import dmu.noonsub_backend.domain.subscription.service.SubscriptionService;
 import dmu.noonsub_backend.global.util.CryptoUtil;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +47,7 @@ public class OpenBankingService {
     private final MemberInsuranceRepository memberInsuranceRepository;
     private final MemberLoanRepository memberLoanRepository;
     private final TransactionRepository transactionRepository;
+    private final SubscriptionRepository subscriptionRepository;
     private final OpenBankingProperties openBankingProperties;
     private final OpenBankingClient openBankingClient; // 실제 mTLS 통신을 담당할 클라이언트
     private final CryptoUtil cryptoUtil; // 토큰 암호화를 담당할 유틸리티
@@ -162,6 +165,15 @@ public class OpenBankingService {
     private void deleteAllFinancialInfo(Member member) {
         // 계좌 삭제 전, 각 계좌에 연결된 거래내역부터 삭제
         List<MemberAccounts> memberAccounts = memberBankRepository.findAllByMember(member);
+        // 2. (수정) 해당 멤버의 모든 구독 정보를 조회하여 계좌 연결 해제
+        List<Subscription> subscriptions = subscriptionRepository.findAllByMember(member);
+        for (Subscription subscription : subscriptions) {
+            // 구독 정보가 삭제될 계좌 중 하나를 참조하고 있다면 연결을 해제(null로 설정)
+            if (subscription.getPaymentAccount() != null && memberAccounts.contains(subscription.getPaymentAccount())) {
+                subscription.updatePaymentAccount(null);
+            }
+        }
+
         for (MemberAccounts account : memberAccounts) {
             transactionRepository.deleteAllByMemberAccount(account);
         }
