@@ -19,8 +19,8 @@ public class MockTransactionDetailDto{
     String inoutType;
     @JsonProperty("tran_type")
     String tranType;
-    @JsonProperty("printed_content")
-    String printedContent;
+    @JsonProperty("print_content")
+    String printContent;
     @JsonProperty("tran_amt")
     String tranAmt;
     @JsonProperty("after_balance_amt")

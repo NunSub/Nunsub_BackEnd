@@ -77,5 +77,7 @@ public class TransactionDto {
         private String afterBalanceAmt;
         @JsonProperty("branch_name")
         private String branchName;
+
+        private String category;
     }
 }

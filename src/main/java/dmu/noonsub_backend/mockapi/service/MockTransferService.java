@@ -119,7 +119,7 @@ public class MockTransferService {
                         .tranTime(t.getTranTime())
                         .inoutType(t.getInoutType())
                         .tranType(t.getTranType())
-                        .printedContent(t.getPrintContent())
+                        .printContent(t.getPrintContent())
                         .tranAmt(String.valueOf(t.getTranAmt()))
                         .afterBalanceAmt(String.valueOf(t.getAfterBalanceAmt()))
                         .branchName(t.getBranchName())

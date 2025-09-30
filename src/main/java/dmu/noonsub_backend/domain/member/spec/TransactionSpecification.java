@@ -30,4 +30,11 @@ public class TransactionSpecification {
         String searchDate = date.replace("-", "");
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("tranDate"), searchDate);
     }
+
+    public static Specification<MemberTransaction> byInoutType(String inoutType) {
+        if(!StringUtils.hasText(inoutType)) {
+            return null;
+        }
+        return ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("inoutType"), inoutType));
+    }
 }
