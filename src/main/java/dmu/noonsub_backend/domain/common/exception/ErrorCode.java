@@ -16,6 +16,8 @@ public enum ErrorCode {
     DATA_SAVE_FAILED(500, "C007", "데이터 저장에 실패하였습니다."),
     NO_DATA_FOUND(404, "C008", "조회 결과가 없습니다."),
     EXTERNAL_API_ERROR(500, "C009", "외부 API 호출에 실패하였습니다."),
+    USER_NOT_FOUND(400, "C010", "사용자를 찾을 수 없습니다."),
+    TOKEN_PARSE_FAILED(400, "C011", "토큰 데이터를 파싱하거나 복호화하는 데 실패했습니다."),
 
     // Member
     MEMBER_NOT_FOUND(404, "M001", "해당 회원을 찾을 수 없습니다."),
@@ -29,13 +31,19 @@ public enum ErrorCode {
     USER_MISMATCH_2FA(400, "M009", "2차 인증 사용자 정보가 일치하지 않습니다."),
     PIN_NOT_SET(400, "M010", "PIN 번호가 설정되지 않았습니다."),
     // Firebase
-    FIREBASE_TOKEN_NOT_FOUND(400, "F001", "Firebase 토큰이 없습니다."),
-    FIREBASE_TOKEN_INVALID(400, "F002", "유효하지 않은 Firebase 토큰입니다."),
+
     DEVICE_NOT_FOUND(402, "D001", "등록된 기기가 없습니다."),
     BANK_ACCOUNT_NOT_FOUND(400, "D002", "등록된 은행 계좌가 없습니다."),
 
     // Transaction
-    TRANSACTION_NOT_FOUND(400, "T001", "해당 거래내역을 찾을 수 없습니다."),;
+    TRANSACTION_NOT_FOUND(400, "T001", "해당 거래내역을 찾을 수 없습니다."),
+
+    // Open Banking
+    OPENBANKING_SYNC_FAILED(400, "O001", "오픈뱅킹 동기화에 실패하였습니다."),
+
+    // Subscription
+    SUBSCRIPTION_NOT_FOUND(400, "S001", "해당 구독 정보를 찾을 수 없습니다."),
+    SUBSCRIPTION_ALREADY_EXISTS(400, "S002", "이미 존재하는 구독 서비스입니다."),;
 
     private final int status;
     private final String code;

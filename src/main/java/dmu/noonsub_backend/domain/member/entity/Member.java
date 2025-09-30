@@ -1,11 +1,10 @@
 package dmu.noonsub_backend.domain.member.entity;
 
-import dmu.noonsub_backend.domain.bankAccount.entity.BankAccount;
 import dmu.noonsub_backend.domain.common.BaseEntity;
 import dmu.noonsub_backend.domain.member.enums.Role;
 import dmu.noonsub_backend.domain.openbanking.dto.OpenBankingUserInfoResponseDto;
 import dmu.noonsub_backend.domain.openbanking.entity.OpenBankingToken;
-import dmu.noonsub_backend.domain.subcribtion.entity.Subscription;
+import dmu.noonsub_backend.domain.subscription.entity.Subscription;
 import jakarta.persistence.*;
 import lombok.*;
 import net.minidev.json.annotate.JsonIgnore;
@@ -70,10 +69,6 @@ public class Member extends BaseEntity {
     @JsonIgnore
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private OpenBankingToken openBankingToken;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BankAccount> bankAccounts = new ArrayList<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
