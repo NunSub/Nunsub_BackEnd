@@ -27,7 +27,7 @@ public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final MemberService memberService;
     private final TransactionRepository transactionRepository;
-    private MemberBankRepository memberBankRepository;
+    private final MemberBankRepository memberBankRepository;
 
     public SubscriptionResponseDto.SubscriptionList getActiveSubscriptions(String phoneNumber) {
         Member member = memberService.getMemberByPhoneNumber(phoneNumber);
