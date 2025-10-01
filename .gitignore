@@ -37,7 +37,3 @@ out/
 .vscode/
 
 src/main/resources/serviceAccountKey.json
-
-src/main/resources/insert_kb_transactions.sql
-src/main/resources/insert_sc_transactions.sql
-src/main/resources/data.sql

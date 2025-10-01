@@ -1121,4 +1121,82 @@ INSERT INTO mock_transactions
 (tran_date, tran_time, inout_type, tran_type, print_content, tran_amt, after_balance_amt, branch_name, account_id)
 VALUES ('20240928', '220906', '입금', '카드입금', 'K-패스 환급금', 23100, 123100, '수신상', 1);
 
+-- ========== 디즈니 플러스 (매월 약 20일) ==========
+INSERT INTO mock_transactions (tran_date, tran_time, inout_type, tran_type, print_content, tran_amt, after_balance_amt, branch_name, account_id)
+VALUES ('20250920', '110512', '출금', '해외승인', 'DisneyPlus', 13900, 377140, 'KB카드', 1);
+
+INSERT INTO mock_transactions (tran_date, tran_time, inout_type, tran_type, print_content, tran_amt, after_balance_amt, branch_name, account_id)
+VALUES ('20250820', '105501', '출금', '해외승인', 'DisneyPlus', 13900, 470300, 'KB카드', 1);
+
+INSERT INTO mock_transactions (tran_date, tran_time, inout_type, tran_type, print_content, tran_amt, after_balance_amt, branch_name, account_id)
+VALUES ('20250720', '111033', '출금', '해외승인', 'DisneyPlus', 13900, 550450, 'KB카드', 1);
+
+INSERT INTO mock_transactions (tran_date, tran_time, inout_type, tran_type, print_content, tran_amt, after_balance_amt, branch_name, account_id)
+VALUES ('20250620', '104950', '출금', '해외승인', 'DisneyPlus', 13900, 605100, 'KB카드', 1);
+
+INSERT INTO mock_transactions (tran_date, tran_time, inout_type, tran_type, print_content, tran_amt, after_balance_amt, branch_name, account_id)
+VALUES ('20250520', '110215', '출금', '해외승인', 'DisneyPlus', 13900, 710200, 'KB카드', 1);
+
+INSERT INTO mock_transactions (tran_date, tran_time, inout_type, tran_type, print_content, tran_amt, after_balance_amt, branch_name, account_id)
+VALUES ('20250420', '105822', '출금', '해외승인', 'DisneyPlus', 13900, 871000, 'KB카드', 1);
+
+
+-- ========== 유튜브 프리미엄 (매월 약 8일) ==========
+INSERT INTO mock_transactions (tran_date, tran_time, inout_type, tran_type, print_content, tran_amt, after_balance_amt, branch_name, account_id)
+VALUES ('20250908', '082015', '출금', '해외승인', 'YouTubePremium', 14900, 366690, 'KB카드', 1);
+
+INSERT INTO mock_transactions (tran_date, tran_time, inout_type, tran_type, print_content, tran_amt, after_balance_amt, branch_name, account_id)
+VALUES ('20250808', '081533', '출금', '해외승인', 'YouTubePremium', 14900, 459850, 'KB카드', 1);
+
+INSERT INTO mock_transactions (tran_date, tran_time, inout_type, tran_type, print_content, tran_amt, after_balance_amt, branch_name, account_id)
+VALUES ('20250708', '090102', '출금', '해외승인', 'YouTubePremium', 14900, 540000, 'KB카드', 1);
+
+INSERT INTO mock_transactions (tran_date, tran_time, inout_type, tran_type, print_content, tran_amt, after_balance_amt, branch_name, account_id)
+VALUES ('20250608', '082240', '출금', '해외승인', 'YouTubePremium', 14900, 594650, 'KB카드', 1);
+
+INSERT INTO mock_transactions (tran_date, tran_time, inout_type, tran_type, print_content, tran_amt, after_balance_amt, branch_name, account_id)
+VALUES ('20250508', '081918', '출금', '해외승인', 'YouTubePremium', 14900, 700000, 'KB카드', 1);
+
+INSERT INTO mock_transactions (tran_date, tran_time, inout_type, tran_type, print_content, tran_amt, after_balance_amt, branch_name, account_id)
+VALUES ('20250408', '082155', '출금', '해외승인', 'YouTubePremium', 14900, 860550, 'KB카드', 1);
+
+
+-- ========== 쿠팡 와우 멤버십 (매월 약 1일) ==========
+INSERT INTO mock_transactions (tran_date, tran_time, inout_type, tran_type, print_content, tran_amt, after_balance_amt, branch_name, account_id)
+VALUES ('20250901', '041020', '출금', '자동이체', '쿠팡와우월회비', 7890, 361700, '자동납부', 1);
+
+INSERT INTO mock_transactions (tran_date, tran_time, inout_type, tran_type, print_content, tran_amt, after_balance_amt, branch_name, account_id)
+VALUES ('20250801', '040930', '출금', '자동이체', '쿠팡와우월회비', 7890, 454860, '자동납부', 1);
+
+INSERT INTO mock_transactions (tran_date, tran_time, inout_type, tran_type, print_content, tran_amt, after_balance_amt, branch_name, account_id)
+VALUES ('20250701', '050111', '출금', '자동이체', '쿠팡와우월회비', 7890, 535010, '자동납부', 1);
+
+INSERT INTO mock_transactions (tran_date, tran_time, inout_type, tran_type, print_content, tran_amt, after_balance_amt, branch_name, account_id)
+VALUES ('20250601', '041522', '출금', '자동이체', '쿠팡와우월회비', 7890, 589660, '자동납부', 1);
+
+INSERT INTO mock_transactions (tran_date, tran_time, inout_type, tran_type, print_content, tran_amt, after_balance_amt, branch_name, account_id)
+VALUES ('20250501', '041105', '출금', '자동이체', '쿠팡와우월회비', 7890, 695010, '자동납부', 1);
+
+INSERT INTO mock_transactions (tran_date, tran_time, inout_type, tran_type, print_content, tran_amt, after_balance_amt, branch_name, account_id)
+VALUES ('20250401', '041348', '출금', '자동이체', '쿠팡와우월회비', 7890, 855560, '자동납부', 1);
+
+-- ========== 자유적금 (매월 10일 입금) ==========
+INSERT INTO mock_transactions (tran_date, tran_time, inout_type, tran_type, print_content, tran_amt, after_balance_amt, branch_name, account_id)
+VALUES ('20250910', '090500', '입금', '자동이체', '자유적금', 100000, 466690, '계좌이체', 1);
+
+INSERT INTO mock_transactions (tran_date, tran_time, inout_type, tran_type, print_content, tran_amt, after_balance_amt, branch_name, account_id)
+VALUES ('20250810', '090215', '입금', '자동이체', '자유적금', 100000, 559850, '계좌이체', 1);
+
+INSERT INTO mock_transactions (tran_date, tran_time, inout_type, tran_type, print_content, tran_amt, after_balance_amt, branch_name, account_id)
+VALUES ('20250710', '090330', '입금', '자동이체', '자유적금', 100000, 640000, '계좌이체', 1);
+
+INSERT INTO mock_transactions (tran_date, tran_time, inout_type, tran_type, print_content, tran_amt, after_balance_amt, branch_name, account_id)
+VALUES ('20250610', '090145', '입금', '자동이체', '자유적금', 100000, 694650, '계좌이체', 1);
+
+INSERT INTO mock_transactions (tran_date, tran_time, inout_type, tran_type, print_content, tran_amt, after_balance_amt, branch_name, account_id)
+VALUES ('20250510', '090401', '입금', '자동이체', '자유적금', 100000, 800000, '계좌이체', 1);
+
+INSERT INTO mock_transactions (tran_date, tran_time, inout_type, tran_type, print_content, tran_amt, after_balance_amt, branch_name, account_id)
+VALUES ('20250410', '090255', '입금', '자동이체', '자유적금', 100000, 960550, '계좌이체', 1);
+
 COMMIT;

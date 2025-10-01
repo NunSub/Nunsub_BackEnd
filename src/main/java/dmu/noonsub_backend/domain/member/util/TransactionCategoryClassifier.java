@@ -4,7 +4,6 @@ import dmu.noonsub_backend.domain.member.enums.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.Normalizer;
 import java.util.*;
 
 public class TransactionCategoryClassifier {
@@ -108,8 +107,11 @@ public class TransactionCategoryClassifier {
             return Category.ETC;
         }
 
+        // 1. 전각 -> 반각 변환
+        String contentAfterWidthConversion = convertFullWidthToHalfWidth(printContent);
+
         // 정규화 및 소문자 변환은 한 번만 수행
-        String normalizedContent = printContent.toLowerCase().replaceAll("\\s+", "");
+        String normalizedContent = contentAfterWidthConversion.toLowerCase().replaceAll("\\s+", "");
 
         log.info("===== 분류 시작: 원본='{}', 정규화='{}' =====", printContent, normalizedContent);
 
@@ -130,6 +132,28 @@ public class TransactionCategoryClassifier {
 
         log.info("===== 분류 실패: 매칭되는 키워드 없음 =====");
         return Category.ETC; // 매칭되는 키워드가 없으면 '기타'로 분류
+    }
+
+    private static String convertFullWidthToHalfWidth(String fullWidthStr) {
+        if (fullWidthStr == null) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (char c : fullWidthStr.toCharArray()) {
+            // 전각 영문/기호 (U+FF01-FF5E)를 반각으로 변환
+            if (c >= '\uFF01' && c <= '\uFF5E') {
+                sb.append((char) (c - 0xFEE0));
+            }
+            // 전각 공백 (U+3000)을 반각 공백으로 변환
+            else if (c == '\u3000') {
+                sb.append(' ');
+            }
+            // 그 외 문자는 그대로 추가
+            else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
     }
 
 }
