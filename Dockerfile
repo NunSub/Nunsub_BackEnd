@@ -32,6 +32,8 @@ FROM eclipse-temurin:21-jre-jammy
 # 작업 디렉터리를 생성합니다.
 WORKDIR /workspace/app
 
+ENV TZ=Asia/Seoul
+
 RUN wget https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.8.2/cloud-sql-proxy.linux.amd64 -O cloud-sql-proxy && \
     chmod +x cloud-sql-proxy
 
