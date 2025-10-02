@@ -72,7 +72,9 @@ public class SecurityConfig {
                                 "/oauth/**",
                                 "/v2.0/**"
                         ).permitAll()
-                        .requestMatchers("/api/auth/**", "/api/openbanking/**", "/mock/**","/api/health-check").permitAll()
+                        .requestMatchers("/api/auth/**", "/api/openbanking/**",
+                                "/mock/**","/api/health-check",
+                                "/actuator/", "/actuator/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole(Role.ADMIN.name())
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated()

@@ -11,3 +11,13 @@ springdoc:
     path: /api/v3/api-docs
   swagger-ui:
     path: /api/swagger-ui.html
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  health:
+    readiness-state:
+      enabled: true
+    liveness-state:
+      enabled: true
